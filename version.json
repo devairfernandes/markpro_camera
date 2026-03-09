@@ -1,6 +1,6 @@
 {
-    "version": "1.0.0",
-    "build_number": 1,
-    "changelog": "- Versão inicial MarkPro Camera\n- Logo Personalizada\n- Backup de Configurações\n- Atualizações OTA",
+    "version": "1.0.2",
+    "build_number": 3,
+    "changelog": "- TESTE DE ATUALIZAÇÃO MarkPro!\n- Nova Interface Polida\n- Performance do Mapa Melhorada\n- Agora com Documentação Estilosa",
     "download_url": "https://github.com/devairfernandes/markpro_camera/releases/latest"
 }
