@@ -1,6 +1,6 @@
 {
     "version": "1.0.2",
     "build_number": 3,
-    "changelog": "- MarkPro Camera v1.0.2 Oficial!\n- Novo Nome e Marca\n- Sistema de Atualização OTA\n- Documentação e Changelog Premium",
-    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/latest"
+    "changelog": "- MarkPro Camera v1.0.2 Oficial!\n- Novo Nome e Marca\n- Corrigido o botão de atualizar para download DIRETO\n- Adicionado suporte para Android 12 e 13",
+    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/v1.0.2/app-release.apk"
 }

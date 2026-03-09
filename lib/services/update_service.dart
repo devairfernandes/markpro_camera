@@ -5,11 +5,9 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class UpdateService {
-  // CONFIGURALÇÃO REAL PARA DEV AIR FERNANDES NO NOVO REPOSITÓRIO
+  // CONFIGURALÇÃO REAL PARA DEV AIR FERNANDES
   static const String _repoUrl =
       "https://raw.githubusercontent.com/devairfernandes/markpro_camera/main/version.json";
-  static const String _downloadUrl =
-      "https://github.com/devairfernandes/markpro_camera/releases/latest";
 
   static Future<void> checkUpdate(BuildContext context) async {
     try {
@@ -20,13 +18,16 @@ class UpdateService {
         final Map<String, dynamic> data = jsonDecode(response.body);
         final String latestVersion = data['version'] ?? "1.0.0";
         final String changelog = data['changelog'] ?? "Nova versão disponível!";
+        final String downloadUrl =
+            data['download_url'] ??
+            "https://github.com/devairfernandes/markpro_camera/releases/latest";
 
         final packageInfo = await PackageInfo.fromPlatform();
         final String currentVersion = packageInfo.version;
 
         if (_isNewer(latestVersion, currentVersion)) {
           if (context.mounted) {
-            _showUpdateDialog(context, latestVersion, changelog);
+            _showUpdateDialog(context, latestVersion, changelog, downloadUrl);
           }
         }
       }
@@ -53,6 +54,7 @@ class UpdateService {
     BuildContext context,
     String version,
     String changelog,
+    String downloadUrl,
   ) {
     showDialog(
       context: context,
@@ -88,9 +90,25 @@ class UpdateService {
           ),
           ElevatedButton(
             onPressed: () async {
-              final uri = Uri.parse(_downloadUrl);
-              if (await canLaunchUrl(uri)) {
+              final uri = Uri.parse(downloadUrl);
+              try {
+                // Tenta abrir o navegador diretamente
                 await launchUrl(uri, mode: LaunchMode.externalApplication);
+              } catch (e) {
+                // Fallback: se falhar o externalApplication, tenta o padrão
+                try {
+                  await launchUrl(uri, mode: LaunchMode.platformDefault);
+                } catch (_) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "Não foi possível abrir o link de download.",
+                        ),
+                      ),
+                    );
+                  }
+                }
               }
               if (context.mounted) Navigator.pop(context);
             },
