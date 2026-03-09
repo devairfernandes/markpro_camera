@@ -1,6 +1,6 @@
 {
     "version": "1.0.2",
     "build_number": 3,
-    "changelog": "- MarkPro Camera v1.0.2 Oficial!\n- Download Direto do Repositório\n- Performance Otimizada\n- Documentação Premium",
-    "download_url": "https://github.com/devairfernandes/markpro_camera/raw/main/apks/markpro_camera_v1.0.2_release.apk"
+    "changelog": "- MarkPro Camera v1.0.2 Oficial!\n- Novo Nome e Marca\n- Sistema de Atualização OTA\n- Documentação e Changelog Premium",
+    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/latest"
 }
