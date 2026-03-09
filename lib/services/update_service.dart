@@ -5,11 +5,11 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class UpdateService {
-  // CONFIGURALÇÃO REAL PARA DEV AIR FERNANDES
+  // CONFIGURALÇÃO REAL PARA DEV AIR FERNANDES NO NOVO REPOSITÓRIO
   static const String _repoUrl =
-      "https://raw.githubusercontent.com/devairfernandes/timemark_pro/main/version.json";
+      "https://raw.githubusercontent.com/devairfernandes/markpro_camera/main/version.json";
   static const String _downloadUrl =
-      "https://github.com/devairfernandes/timemark_pro/releases/latest";
+      "https://github.com/devairfernandes/markpro_camera/releases/latest";
 
   static Future<void> checkUpdate(BuildContext context) async {
     try {
@@ -70,7 +70,7 @@ class UpdateService {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "MarkTime Pro v$version",
+              "MarkPro Camera v$version",
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
