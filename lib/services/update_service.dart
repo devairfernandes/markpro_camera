@@ -5,11 +5,11 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class UpdateService {
-  // ATENÇÃO: Troque 'SEU_USUARIO' pelo seu nome de usuário no GitHub!
+  // CONFIGURALÇÃO REAL PARA DEV AIR FERNANDES
   static const String _repoUrl =
-      "https://raw.githubusercontent.com/SEU_USUARIO/timemark_pro/main/version.json";
+      "https://raw.githubusercontent.com/devairfernandes/timemark_pro/main/version.json";
   static const String _downloadUrl =
-      "https://github.com/SEU_USUARIO/timemark_pro/releases/latest";
+      "https://github.com/devairfernandes/timemark_pro/releases/latest";
 
   static Future<void> checkUpdate(BuildContext context) async {
     try {
@@ -36,14 +36,16 @@ class UpdateService {
   }
 
   static bool _isNewer(String latest, String current) {
-    List<int> latestParts = latest.split('.').map(int.parse).toList();
-    List<int> currentParts = current.split('.').map(int.parse).toList();
+    try {
+      List<int> latestParts = latest.split('.').map(int.parse).toList();
+      List<int> currentParts = current.split('.').map(int.parse).toList();
 
-    for (int i = 0; i < latestParts.length; i++) {
-      if (i >= currentParts.length) return true;
-      if (latestParts[i] > currentParts[i]) return true;
-      if (latestParts[i] < currentParts[i]) return false;
-    }
+      for (int i = 0; i < latestParts.length; i++) {
+        if (i >= currentParts.length) return true;
+        if (latestParts[i] > currentParts[i]) return true;
+        if (latestParts[i] < currentParts[i]) return false;
+      }
+    } catch (_) {}
     return false;
   }
 
