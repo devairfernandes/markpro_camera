@@ -1,0 +1,48 @@
+Running Gradle task 'assembleDebug'...                          
+lib/services/image_processor.dart:111:24: Error: The argument type 'bool' can't be assigned to the parameter type 'BlendMode'.
+ - 'BlendMode' is from 'package:image/src/draw/blend_mode.dart' ('/C:/Users/Administrator/AppData/Local/Pub/Cache/hosted/pub.dev/image-4.8.0/lib/src/draw/blend_mode.dart').
+                blend: false,
+                       ^
+lib/services/image_processor.dart:143:21: Error: Too many positional arguments: 1 allowed, but 6 found.
+Try removing the extra positional arguments.
+        img.fillRect(
+                    ^
+/C:/Users/Administrator/AppData/Local/Pub/Cache/hosted/pub.dev/image-4.8.0/lib/src/draw/fill_rect.dart:11:7: Context: Found this candidate, but the arguments don't match.
+Image fillRect(Image src,
+      ^^^^^^^^
+lib/services/image_processor.dart:234:19: Error: Too many positional arguments: 1 allowed, but 6 found.
+Try removing the extra positional arguments.
+      img.fillRect(
+                  ^
+/C:/Users/Administrator/AppData/Local/Pub/Cache/hosted/pub.dev/image-4.8.0/lib/src/draw/fill_rect.dart:11:7: Context: Found this candidate, but the arguments don't match.
+Image fillRect(Image src,
+      ^^^^^^^^
+lib/services/image_processor.dart:242:19: Error: Too many positional arguments: 1 allowed, but 6 found.
+Try removing the extra positional arguments.
+      img.drawRect(
+                  ^
+/C:/Users/Administrator/AppData/Local/Pub/Cache/hosted/pub.dev/image-4.8.0/lib/src/draw/draw_rect.dart:11:7: Context: Found this candidate, but the arguments don't match.
+Image drawRect(Image dst,
+      ^^^^^^^^
+lib/services/image_processor.dart:258:18: Error: The argument type 'bool' can't be assigned to the parameter type 'BlendMode'.
+ - 'BlendMode' is from 'package:image/src/draw/blend_mode.dart' ('/C:/Users/Administrator/AppData/Local/Pub/Cache/hosted/pub.dev/image-4.8.0/lib/src/draw/blend_mode.dart').
+          blend: false,
+                 ^
+Target kernel_snapshot_program failed: Exception
+
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileFlutterBuildDebug'.
+> Process 'command 'C:\flutter\bin\flutter.bat'' finished with non-zero exit value 1
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 31s
+Running Gradle task 'assembleDebug'...                             31,7s
+Gradle task assembleDebug failed with exit code 1
