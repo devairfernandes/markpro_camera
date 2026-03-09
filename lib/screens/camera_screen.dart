@@ -183,7 +183,7 @@ class _CameraScreenState extends State<CameraScreen> {
 
   void _exportConfig() {
     final String config = jsonEncode({'settings': _settings, 'version': '1.0'});
-    Share.share(config, subject: 'Minhas Configurações MarkTime Pro');
+    Share.share(config, subject: 'Minhas Configurações MarkPro Camera');
   }
 
   void _importConfig() {
@@ -444,7 +444,7 @@ class _CameraScreenState extends State<CameraScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "MARKTIME PRO",
+              "MARKPRO CAMERA",
               style: GoogleFonts.outfit(
                 color: const Color(0xFF00E676),
                 fontWeight: FontWeight.w900,
