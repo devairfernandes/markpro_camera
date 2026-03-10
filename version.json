@@ -1,6 +1,6 @@
 {
-    "version": "1.0.12",
-    "build_number": 13,
-    "changelog": "- MarkPro Camera v1.0.12!\n- Correção: Data e hora ao vivo agora aparece na tela antes de tirar a foto\n- Correção: Leitura correta de coordenadas GPS de fotos anteriores (formato DMS)\n- Compartilhamento com link do Google Maps agora funciona para fotos antigas",
-    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.12/app-release.apk"
+    "version": "1.0.14",
+    "build_number": 15,
+    "changelog": "- MarkPro Camera v1.0.14!\n- Galeria interna MarkPro: acesse suas fotos com localização garantida\n- Fotos agora armazenadas internamente com coordenadas permanentes\n- Link do Google Maps disponível para QUALQUER foto tirada pelo app, mesmo após reiniciar\n- Badge verde indica fotos com localização disponível",
+    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.14/app-release.apk"
 }

@@ -10,6 +10,7 @@ import 'package:gal/gal.dart';
 import 'package:flutter/foundation.dart';
 import 'package:native_exif/native_exif.dart';
 import 'package:intl/intl.dart';
+import 'photo_metadata_db.dart';
 
 class ImageProcessParams {
   final String path;
@@ -430,28 +431,36 @@ class ImageProcessor {
     );
 
     if (finalPath != null) {
-      // ADICIONAR METADADOS EXIF (GPS)
+      // ADICIONAR METADADOS EXIF (GPS) ao arquivo temp antes de salvar
       try {
         final exif = await Exif.fromPath(finalPath);
-        final Map<String, dynamic> attributes = {
-          'DateTimeOriginal': DateFormat(
-            'yyyy:MM:dd HH:mm:ss',
-          ).format(DateTime.now()),
-          'ImageDescription': 'MarkPro Camera Verified Photo',
-          'Software': 'MarkPro Camera v1.0.9',
-        };
-
+        await exif.writeAttribute(
+          'ImageDescription',
+          'MarkPro Camera Verified Photo',
+        );
+        await exif.writeAttribute('Software', 'MarkPro Camera v1.0.12');
+        await exif.writeAttribute(
+          'DateTimeOriginal',
+          DateFormat('yyyy:MM:dd HH:mm:ss').format(DateTime.now()),
+        );
         if (position != null) {
-          attributes['GPSLatitude'] = position.latitude;
-          attributes['GPSLatitudeRef'] = position.latitude >= 0 ? 'N' : 'S';
-          attributes['GPSLongitude'] = position.longitude;
-          attributes['GPSLongitudeRef'] = position.longitude >= 0 ? 'E' : 'W';
-          attributes['GPSAltitude'] = position.altitude;
-          attributes['GPSAltitudeRef'] = 0; // 0 = Above Sea Level
-        }
-
-        for (final entry in attributes.entries) {
-          await exif.writeAttribute(entry.key, entry.value.toString());
+          final latAbs = position.latitude.abs();
+          final lonAbs = position.longitude.abs();
+          await exif.writeAttribute(
+            'GPSLatitudeRef',
+            position.latitude >= 0 ? 'N' : 'S',
+          );
+          await exif.writeAttribute('GPSLatitude', _decimalToDms(latAbs));
+          await exif.writeAttribute(
+            'GPSLongitudeRef',
+            position.longitude >= 0 ? 'E' : 'W',
+          );
+          await exif.writeAttribute('GPSLongitude', _decimalToDms(lonAbs));
+          await exif.writeAttribute(
+            'GPSAltitude',
+            '${position.altitude.toStringAsFixed(0)}/1',
+          );
+          await exif.writeAttribute('GPSAltitudeRef', '0');
         }
         await exif.close();
       } catch (e) {
@@ -459,10 +468,30 @@ class ImageProcessor {
       }
 
       await Gal.putImage(finalPath, album: "MarkTime");
+
+      // SALVAR NO BANCO INTERNO + CÓPIA LOCAL PERMANENTE
+      if (position != null) {
+        await PhotoMetadataDB.save(
+          originalPath: finalPath,
+          lat: position.latitude,
+          lon: position.longitude,
+          address: address,
+        );
+      }
+
       try {
         await File(path).delete();
       } catch (_) {}
     }
     return finalPath;
+  }
+
+  /// Converte coordenada decimal para string DMS racional (para EXIF)
+  static String _decimalToDms(double decimal) {
+    final deg = decimal.floor();
+    final minFull = (decimal - deg) * 60;
+    final min = minFull.floor();
+    final sec = ((minFull - min) * 60 * 100).round();
+    return '$deg/1,$min/1,$sec/100';
   }
 }

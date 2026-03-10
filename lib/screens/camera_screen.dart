@@ -15,10 +15,10 @@ import 'package:share_plus/share_plus.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:native_exif/native_exif.dart';
 import '../services/location_service.dart';
 import '../services/image_processor.dart';
 import '../services/update_service.dart';
+import '../services/photo_metadata_db.dart';
 
 class CameraScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -211,76 +211,136 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   Future<void> _openGalleryAndShare() async {
-    final picker = ImagePicker();
-    final XFile? picked = await picker.pickImage(source: ImageSource.gallery);
-    if (picked == null || !mounted) return;
-
-    double? lat, lon;
-    String? addr;
-    try {
-      final exif = await Exif.fromPath(picked.path);
-      final latStr = await exif.getAttribute('GPSLatitude');
-      final lonStr = await exif.getAttribute('GPSLongitude');
-      final latRef = await exif.getAttribute('GPSLatitudeRef');
-      final lonRef = await exif.getAttribute('GPSLongitudeRef');
-      await exif.close();
-
-      if (latStr != null && lonStr != null) {
-        lat = _parseDmsOrDecimal(latStr);
-        lon = _parseDmsOrDecimal(lonStr);
-        if (lat != null && latRef == 'S') lat = -lat.abs();
-        if (lon != null && lonRef == 'W') lon = -lon.abs();
-
-        if (lat != null && lon != null) {
-          addr = await LocationService.getAddressFromLatLng(lat, lon);
-        }
-      }
-    } catch (e) {
-      debugPrint('Erro ao ler EXIF: $e');
-    }
+    final photos = await PhotoMetadataDB.getAll();
 
     if (!mounted) return;
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => PhotoPreviewScreen(
-          path: picked.path,
-          lat: lat,
-          lon: lon,
-          address: addr,
+
+    if (photos.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Nenhuma foto do MarkPro encontrada. Tire uma foto primeiro!',
+          ),
+          backgroundColor: Color(0xFF1A1A1A),
+        ),
+      );
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.7,
+        maxChildSize: 0.95,
+        builder: (_, controller) => Container(
+          decoration: const BoxDecoration(
+            color: Color(0xFF121212),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Fotos MarkPro',
+                style: GoogleFonts.outfit(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                'Segure para excluir',
+                style: GoogleFonts.outfit(color: Colors.white38, fontSize: 12),
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: GridView.builder(
+                  controller: controller,
+                  padding: const EdgeInsets.all(12),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 6,
+                    mainAxisSpacing: 6,
+                  ),
+                  itemCount: photos.length,
+                  itemBuilder: (_, i) {
+                    final photo = photos[i];
+                    final hasLocation = photo['lat'] != null;
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        if (mounted) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => PhotoPreviewScreen(
+                                path: photo['path'] as String,
+                                lat: photo['lat'] != null
+                                    ? (photo['lat'] as num).toDouble()
+                                    : null,
+                                lon: photo['lon'] != null
+                                    ? (photo['lon'] as num).toDouble()
+                                    : null,
+                                address: photo['address'] as String?,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      onLongPress: () async {
+                        await PhotoMetadataDB.delete(photo['path'] as String);
+                        if (mounted) Navigator.pop(ctx);
+                        _openGalleryAndShare();
+                      },
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.file(
+                              File(photo['path'] as String),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          if (hasLocation)
+                            Positioned(
+                              bottom: 4,
+                              right: 4,
+                              child: Container(
+                                padding: const EdgeInsets.all(3),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF00E676),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Icon(
+                                  Icons.location_on,
+                                  color: Colors.black,
+                                  size: 10,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
-  }
-
-  /// Converte string EXIF de coordenadas que pode ser:
-  /// - Decimal simples: "10.720973"
-  /// - DMS racional: "10/1,43/1,2527/100" (graus/min/seg como frações)
-  double? _parseDmsOrDecimal(String raw) {
-    // Tenta decimal direto
-    final direct = double.tryParse(raw);
-    if (direct != null) return direct;
-
-    // Tenta formato DMS racional separado por vírgula ou espaço
-    final parts = raw.split(RegExp(r'[,\s]+'));
-    if (parts.length == 3) {
-      double? deg = _parseRational(parts[0]);
-      double? min = _parseRational(parts[1]);
-      double? sec = _parseRational(parts[2]);
-      if (deg != null && min != null && sec != null) {
-        return deg + (min / 60.0) + (sec / 3600.0);
-      }
-    }
-    return null;
-  }
-
-  double? _parseRational(String part) {
-    final segments = part.split('/');
-    if (segments.length == 2) {
-      final num = double.tryParse(segments[0]);
-      final den = double.tryParse(segments[1]);
-      if (num != null && den != null && den != 0) return num / den;
-    }
-    return double.tryParse(part);
   }
 
   Future<void> _pickLogo() async {
