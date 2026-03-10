@@ -494,9 +494,30 @@ class _CameraScreenState extends State<CameraScreen> {
     }
   }
 
-  void _exportConfig() {
-    final String config = jsonEncode({'settings': _settings, 'version': '1.0'});
-    Share.share(config, subject: 'Minhas Configurações MarkPro Camera');
+  Future<void> _exportConfig() async {
+    try {
+      final String config = const JsonEncoder.withIndent('  ').convert({
+        'settings': _settings,
+        'customTitle': _customTitle,
+        'version': '1.0.18',
+        'exportedAt': DateTime.now().toIso8601String(),
+      });
+      final tempDir = await getTemporaryDirectory();
+      final file = File(join(tempDir.path, 'markpro_config.json'));
+      await file.writeAsString(config);
+      await Share.shareXFiles([
+        XFile(file.path, mimeType: 'application/json'),
+      ], subject: 'Configurações MarkPro Camera');
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao exportar: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   void _importConfig() {
@@ -617,7 +638,7 @@ class _CameraScreenState extends State<CameraScreen> {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              'v1.0.15',
+                              'v1.0.18',
                               style: GoogleFonts.outfit(
                                 color: Colors.black,
                                 fontSize: 11,

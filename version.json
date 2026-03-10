@@ -1,6 +1,6 @@
 {
-    "version": "1.0.17",
-    "build_number": 18,
-    "changelog": "- MarkPro Camera v1.0.17!\n- Assinatura do desenvolvedor na lateral direita de cada foto\n- Texto 'Dev: Devair Fernandes  69 99221-4709' exibido verticalmente\n- Texto discreto com fundo semitransparente",
-    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.17/app-release.apk"
+    "version": "1.0.18",
+    "build_number": 19,
+    "changelog": "- MarkPro Camera v1.0.18!\n- Exportar Configurações agora gera um arquivo .json real para compartilhar\n- Badge de versão nas configurações corrigido\n- Assinatura do desenvolvedor na lateral de cada foto\n- GPS solicitado na primeira abertura",
+    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.18/app-release.apk"
 }
