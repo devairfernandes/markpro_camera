@@ -40,6 +40,7 @@ class _CameraScreenState extends State<CameraScreen> {
   FlashMode _flashMode = FlashMode.off;
   String? _lastPhotoPath;
   String? _customLogoPath;
+  String _customTitle = "MARKPRO CAMERA";
 
   Map<String, bool> _settings = {
     'showTime': true,
@@ -77,6 +78,7 @@ class _CameraScreenState extends State<CameraScreen> {
     }
     setState(() {
       _customLogoPath = prefs.getString('custom_logo_path');
+      _customTitle = prefs.getString('custom_title') ?? "MARKPRO CAMERA";
     });
   }
 
@@ -88,6 +90,7 @@ class _CameraScreenState extends State<CameraScreen> {
     } else {
       await prefs.remove('custom_logo_path');
     }
+    await prefs.setString('custom_title', _customTitle);
   }
 
   void _startTimer() {
@@ -152,6 +155,7 @@ class _CameraScreenState extends State<CameraScreen> {
         dayString: day,
         settings: settingsCopy,
         logoPath: logoPathCopy,
+        customTitle: _customTitle,
       ).then((resultPath) {
         if (mounted) {
           setState(() {
@@ -303,6 +307,123 @@ class _CameraScreenState extends State<CameraScreen> {
                     ],
                   ),
                   const SizedBox(height: 25),
+
+                  // NOME DO APP (PERSONALIZAÇÃO)
+                  InkWell(
+                    onTap: () {
+                      final controller = TextEditingController(
+                        text: _customTitle,
+                      );
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          backgroundColor: const Color(0xFF1A1A1A),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          title: Text(
+                            "Nome do Projeto",
+                            style: GoogleFonts.outfit(color: Colors.white),
+                          ),
+                          content: TextField(
+                            controller: controller,
+                            style: const TextStyle(color: Colors.white),
+                            decoration: InputDecoration(
+                              hintText: "Ex: Obra São Paulo",
+                              hintStyle: const TextStyle(color: Colors.white24),
+                              enabledBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white10),
+                              ),
+                              focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color(0xFF00E676),
+                                ),
+                              ),
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text(
+                                "Cancelar",
+                                style: TextStyle(color: Colors.white54),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                if (controller.text.isNotEmpty) {
+                                  setModalState(
+                                    () => _customTitle = controller.text
+                                        .toUpperCase(),
+                                  );
+                                  setState(
+                                    () => _customTitle = controller.text
+                                        .toUpperCase(),
+                                  );
+                                  _saveSettings();
+                                  Navigator.pop(context);
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF00E676),
+                              ),
+                              child: const Text(
+                                "SALVAR",
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(15),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF00E676).withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(
+                          color: const Color(0xFF00E676).withOpacity(0.2),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.edit_note_rounded,
+                            color: Color(0xFF00E676),
+                          ),
+                          const SizedBox(width: 15),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Nome Personalizado",
+                                  style: GoogleFonts.outfit(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  _customTitle,
+                                  style: GoogleFonts.outfit(
+                                    color: const Color(0xFF00E676),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(
+                            Icons.chevron_right_rounded,
+                            color: Colors.white24,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
 
                   // GRID DE CONFIGURAÇÕES
                   _buildModernToggle(
@@ -603,7 +724,7 @@ class _CameraScreenState extends State<CameraScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "MARKPRO CAMERA",
+              _customTitle,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF00E676),
                 fontWeight: FontWeight.w900,

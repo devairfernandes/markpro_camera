@@ -28,6 +28,7 @@ class ImageProcessParams {
   final bool showLogo;
   final bool showCoords;
   final bool showAltitude;
+  final String customTitle;
 
   ImageProcessParams({
     required this.path,
@@ -48,6 +49,7 @@ class ImageProcessParams {
     required this.showLogo,
     required this.showCoords,
     required this.showAltitude,
+    required this.customTitle,
   });
 }
 
@@ -185,7 +187,7 @@ class ImageProcessor {
 
       img.drawString(
         baseImage,
-        "Original Photo Verified",
+        params.customTitle,
         font: img.arial24,
         x: 50,
         y: 50,
@@ -389,6 +391,7 @@ class ImageProcessor {
     required String dayString,
     required Map<String, bool> settings,
     String? logoPath,
+    required String customTitle,
   }) async {
     final tempDir = await getTemporaryDirectory();
     final appDocDir = await getApplicationDocumentsDirectory();
@@ -414,6 +417,7 @@ class ImageProcessor {
         showLogo: settings['showLogo'] ?? true,
         showCoords: settings['showCoords'] ?? true,
         showAltitude: settings['showAltitude'] ?? true,
+        customTitle: customTitle,
       ),
     );
 
