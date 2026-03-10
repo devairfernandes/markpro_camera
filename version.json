@@ -1,6 +1,6 @@
 {
-    "version": "1.0.16",
-    "build_number": 17,
-    "changelog": "- MarkPro Camera v1.0.16!\n- Menu de configurações completamente redesenhado com seções organizadas\n- Grid animado de toggles para ativar/desativar itens do carimbo\n- Preview da logo diretamente no menu\n- Badge de versão no topo das configurações\n- Botão de verificação de GPS dentro do menu\n- GPS solicitado corretamente na primeira abertura\n- Aviso quando GPS está desligado com atalho para ativar",
-    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.16/app-release.apk"
+    "version": "1.0.17",
+    "build_number": 18,
+    "changelog": "- MarkPro Camera v1.0.17!\n- Assinatura do desenvolvedor na lateral direita de cada foto\n- Texto 'Dev: Devair Fernandes  69 99221-4709' exibido verticalmente\n- Texto discreto com fundo semitransparente",
+    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.17/app-release.apk"
 }
