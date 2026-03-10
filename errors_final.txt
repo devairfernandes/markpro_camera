@@ -1,9 +1,0 @@
-Analyzing timemark_pro...                                       
-
-   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\camera_screen.dart:239:31 - deprecated_member_use
-   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\camera_screen.dart:301:58 - deprecated_member_use
-   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\camera_screen.dart:378:35 - deprecated_member_use
-   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\camera_screen.dart:424:35 - deprecated_member_use
-   info - 'desiredAccuracy' is deprecated and shouldn't be used. use settings parameter with AndroidSettings, AppleSettings, WebSettings, or LocationSettings - lib\services\location_service.dart:9:9 - deprecated_member_use
-
-5 issues found. (ran in 5.4s)
