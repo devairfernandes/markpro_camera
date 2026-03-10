@@ -1,7 +1,7 @@
 name: markpro_camera
 description: "Professional Timestamp Camera for Proof of Work"
 publish_to: 'none'
-version: 1.0.10+11
+version: 1.0.11+12
 
 environment:
   sdk: ^3.10.3

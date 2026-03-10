@@ -15,6 +15,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:native_exif/native_exif.dart';
 import '../services/location_service.dart';
 import '../services/image_processor.dart';
 import '../services/update_service.dart';
@@ -207,6 +208,50 @@ class _CameraScreenState extends State<CameraScreen> {
     } catch (e) {
       setState(() => _isProcessingRaw = false);
     }
+  }
+
+  Future<void> _openGalleryAndShare() async {
+    final picker = ImagePicker();
+    final XFile? picked = await picker.pickImage(source: ImageSource.gallery);
+    if (picked == null || !mounted) return;
+
+    // Tentar ler GPS do EXIF
+    double? lat, lon;
+    String? addr;
+    try {
+      final exif = await Exif.fromPath(picked.path);
+      final latStr = await exif.getAttribute('GPSLatitude');
+      final lonStr = await exif.getAttribute('GPSLongitude');
+      final latRef = await exif.getAttribute('GPSLatitudeRef');
+      final lonRef = await exif.getAttribute('GPSLongitudeRef');
+      await exif.close();
+
+      if (latStr != null && lonStr != null) {
+        lat = double.tryParse(latStr);
+        lon = double.tryParse(lonStr);
+        // Corrigir sinal pelo Ref (S = negativo, W = negativo)
+        if (lat != null && latRef == 'S') lat = -lat.abs();
+        if (lon != null && lonRef == 'W') lon = -lon.abs();
+
+        if (lat != null && lon != null) {
+          addr = await LocationService.getAddressFromLatLng(lat, lon);
+        }
+      }
+    } catch (e) {
+      debugPrint('Erro ao ler EXIF: $e');
+    }
+
+    if (!mounted) return;
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => PhotoPreviewScreen(
+          path: picked.path,
+          lat: lat,
+          lon: lon,
+          address: addr,
+        ),
+      ),
+    );
   }
 
   Future<void> _pickLogo() async {
@@ -891,6 +936,7 @@ class _CameraScreenState extends State<CameraScreen> {
         children: [
           GestureDetector(
             onTap: () {
+              // Toque simples: abrir última foto tirada
               if (_lastPhotoPath != null) {
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -902,24 +948,46 @@ class _CameraScreenState extends State<CameraScreen> {
                     ),
                   ),
                 );
+              } else {
+                // Se não há foto ainda, abrir galeria
+                _openGalleryAndShare();
               }
             },
-            child: Container(
-              width: 55,
-              height: 55,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.white, width: 2),
-                image: _lastPhotoPath != null
-                    ? DecorationImage(
-                        image: FileImage(File(_lastPhotoPath!)),
-                        fit: BoxFit.cover,
-                      )
-                    : null,
-              ),
-              child: _lastPhotoPath == null
-                  ? const Icon(Icons.photo_library, color: Colors.white)
-                  : null,
+            onLongPress:
+                _openGalleryAndShare, // Toque longo: escolher da galeria
+            child: Stack(
+              alignment: Alignment.bottomRight,
+              children: [
+                Container(
+                  width: 55,
+                  height: 55,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.white, width: 2),
+                    image: _lastPhotoPath != null
+                        ? DecorationImage(
+                            image: FileImage(File(_lastPhotoPath!)),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                  ),
+                  child: _lastPhotoPath == null
+                      ? const Icon(Icons.photo_library, color: Colors.white)
+                      : null,
+                ),
+                Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00E676),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Icon(
+                    Icons.collections_rounded,
+                    color: Colors.black,
+                    size: 12,
+                  ),
+                ),
+              ],
             ),
           ),
           GestureDetector(

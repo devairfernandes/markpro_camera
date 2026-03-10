@@ -1,6 +1,6 @@
 {
-    "version": "1.0.10",
-    "build_number": 11,
-    "changelog": "- MarkPro Camera v1.0.10!\n- Suporte a Metadados EXIF: Coordenadas GPS salvas dentro do arquivo da foto\n- Compartilhamento inteligente: Agora envia descrição com link direto para o Google Maps\n- Melhorias de precisão no carimbo de informações\n- Correções internas de estabilidade",
-    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.10/app-release.apk"
+    "version": "1.0.11",
+    "build_number": 12,
+    "changelog": "- MarkPro Camera v1.0.11!\n- Galeria inteligente: abra qualquer foto do app e compartilhe com o link de localização\n- Leitura automática de coordenadas EXIF de fotos anteriores\n- Segure o botão de galeria para escolher qualquer foto\n- Compartilhamento com link do Google Maps para fotos antigas",
+    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.11/app-release.apk"
 }
