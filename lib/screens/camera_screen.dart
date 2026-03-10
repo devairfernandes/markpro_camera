@@ -236,118 +236,211 @@ class _CameraScreenState extends State<CameraScreen> {
   void _showEditModel() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
-      ),
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
             return Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF121212),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(30),
+                ),
+                border: Border.all(color: Colors.white10, width: 0.5),
+              ),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 40,
-                    height: 4,
+                    width: 50,
+                    height: 5,
                     decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(2),
+                      color: Colors.white24,
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
+                  const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "Editar modelo",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Configurações",
+                            style: GoogleFonts.outfit(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            "Personalize seu selo de prova",
+                            style: GoogleFonts.outfit(
+                              fontSize: 13,
+                              color: Colors.white54,
+                            ),
+                          ),
+                        ],
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.05),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                  const Divider(),
-                  _buildToggleItem(
-                    "Hora: $_currentTimeString",
-                    "showTime",
+                  const SizedBox(height: 25),
+
+                  // GRID DE CONFIGURAÇÕES
+                  _buildModernToggle(
+                    "Data e Hora",
+                    _currentTimeString,
+                    Icons.access_time_filled_rounded,
+                    'showTime',
                     setModalState,
                   ),
-                  _buildToggleItem("Endereço", "showAddress", setModalState),
-                  _buildToggleItem("Mapa", "showMap", setModalState),
-                  _buildToggleItem("Lat/Long", "showCoords", setModalState),
-                  _buildToggleItem("Altitude", "showAltitude", setModalState),
+                  _buildModernToggle(
+                    "Endereço Completo",
+                    "Localização via GPS",
+                    Icons.location_on_rounded,
+                    'showAddress',
+                    setModalState,
+                  ),
+                  _buildModernToggle(
+                    "Mini Mapa 2D",
+                    "Visão aérea local",
+                    Icons.map_rounded,
+                    'showMap',
+                    setModalState,
+                  ),
+                  _buildModernToggle(
+                    "Coordenadas",
+                    "Lat/Long precisas",
+                    Icons.explore_rounded,
+                    'showCoords',
+                    setModalState,
+                  ),
+                  _buildModernToggle(
+                    "Altitude",
+                    "Metros acima do mar",
+                    Icons.landscape_rounded,
+                    'showAltitude',
+                    setModalState,
+                  ),
 
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text(
-                      "Logo",
-                      style: TextStyle(fontSize: 14, color: Colors.black),
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (_customLogoPath != null)
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: Image.file(
-                              File(_customLogoPath!),
-                              width: 30,
-                              height: 30,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        const SizedBox(width: 8),
-                        Switch(
-                          value: _settings['showLogo']!,
-                          activeThumbColor: const Color(0xFF00E676),
-                          onChanged: (val) {
-                            setModalState(() => _settings['showLogo'] = val);
-                            setState(() => _settings['showLogo'] = val);
-                            _saveSettings();
-                          },
-                        ),
-                      ],
-                    ),
+                  // SEÇÃO DE LOGO
+                  const SizedBox(height: 10),
+                  InkWell(
                     onTap: () async {
                       await _pickLogo();
                       setModalState(() {});
                     },
+                    borderRadius: BorderRadius.circular(15),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.03),
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(color: Colors.white10),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 45,
+                            height: 45,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF00E676).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: _customLogoPath != null
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.file(
+                                      File(_customLogoPath!),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.business_center_rounded,
+                                    color: Color(0xFF00E676),
+                                  ),
+                          ),
+                          const SizedBox(width: 15),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Logotipo da Empresa",
+                                  style: GoogleFonts.outfit(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  _customLogoPath != null
+                                      ? "Logo carregada"
+                                      : "Toque para importar",
+                                  style: GoogleFonts.outfit(
+                                    color: Colors.white54,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Switch(
+                            value: _settings['showLogo']!,
+                            activeColor: const Color(0xFF00E676),
+                            onChanged: (val) {
+                              setModalState(() => _settings['showLogo'] = val);
+                              setState(() => _settings['showLogo'] = val);
+                              _saveSettings();
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  const Divider(),
+
+                  const SizedBox(height: 25),
+
+                  // BOTÕES DE CONFIGURAÇÃO VIA CÓDIGO
                   Row(
                     children: [
                       Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: _exportConfig,
-                          icon: const Icon(Icons.ios_share, size: 18),
-                          label: const Text("Exportar"),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.blue,
-                          ),
+                        child: _buildActionBtn(
+                          "Exportar",
+                          Icons.ios_share_rounded,
+                          Colors.blueAccent,
+                          _exportConfig,
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 15),
                       Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: _importConfig,
-                          icon: const Icon(Icons.input, size: 18),
-                          label: const Text("Importar"),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.orange,
-                          ),
+                        child: _buildActionBtn(
+                          "Importar",
+                          Icons.input_rounded,
+                          Colors.orangeAccent,
+                          _importConfig,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 15),
                 ],
               ),
             );
@@ -357,21 +450,87 @@ class _CameraScreenState extends State<CameraScreen> {
     );
   }
 
-  Widget _buildToggleItem(String label, String key, StateSetter setModalState) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      title: Text(
-        label,
-        style: const TextStyle(fontSize: 14, color: Colors.black),
+  Widget _buildModernToggle(
+    String title,
+    String subtitle,
+    IconData icon,
+    String key,
+    StateSetter setModalState,
+  ) {
+    bool isEnabled = _settings[key]!;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.03),
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(
+            color: isEnabled
+                ? const Color(0xFF00E676).withOpacity(0.3)
+                : Colors.white10,
+          ),
+        ),
+        child: ListTile(
+          leading: Icon(
+            icon,
+            color: isEnabled ? const Color(0xFF00E676) : Colors.white24,
+          ),
+          title: Text(
+            title,
+            style: GoogleFonts.outfit(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: 15,
+            ),
+          ),
+          subtitle: Text(
+            subtitle,
+            style: GoogleFonts.outfit(color: Colors.white38, fontSize: 11),
+          ),
+          trailing: Switch(
+            value: isEnabled,
+            activeColor: const Color(0xFF00E676),
+            onChanged: (val) {
+              setModalState(() => _settings[key] = val);
+              setState(() => _settings[key] = val);
+              _saveSettings();
+            },
+          ),
+        ),
       ),
-      trailing: Switch(
-        value: _settings[key]!,
-        activeThumbColor: const Color(0xFF00E676),
-        onChanged: (val) {
-          setModalState(() => _settings[key] = val);
-          setState(() => _settings[key] = val);
-          _saveSettings();
-        },
+    );
+  }
+
+  Widget _buildActionBtn(
+    String label,
+    IconData icon,
+    Color color,
+    VoidCallback onTap,
+  ) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.3)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: GoogleFonts.outfit(
+                color: color,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
