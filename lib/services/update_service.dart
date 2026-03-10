@@ -126,8 +126,9 @@ class UpdateService {
         builder: (context, setModalState) {
           if (subscription == null && !isCompleted) {
             try {
+              // Removi o destinationFilename para usar o caminho interno seguro do plugin
               subscription = OtaUpdate()
-                  .execute(url, destinationFilename: 'markpro_update.apk')
+                  .execute(url)
                   .listen(
                     (OtaEvent event) {
                       if (!context.mounted) return;
@@ -138,11 +139,11 @@ class UpdateService {
                             progress = double.tryParse(event.value!) ?? 0;
                             break;
                           case OtaStatus.INSTALLING:
-                            status = "Pronto para instalar!";
+                            status = "Finalizando...";
                             progress = 100;
                             isCompleted = true;
-                            // Fecha após 2 segundos para o sistema assumir a instalação
-                            Future.delayed(const Duration(seconds: 2), () {
+                            // Dá tempo para o sistema abrir o instalador nativo
+                            Future.delayed(const Duration(seconds: 5), () {
                               if (context.mounted) Navigator.of(context).pop();
                               subscription?.cancel();
                             });
@@ -170,10 +171,10 @@ class UpdateService {
                     },
                     onError: (e) {
                       setModalState(() {
-                        status = "Erro de conexão.";
+                        status = "Falha crítica na conexão.";
                         isCompleted = true;
                       });
-                      Future.delayed(const Duration(seconds: 3), () {
+                      Future.delayed(const Duration(seconds: 4), () {
                         if (context.mounted) Navigator.of(context).pop();
                         subscription?.cancel();
                       });
@@ -181,10 +182,10 @@ class UpdateService {
                   );
             } catch (e) {
               setModalState(() {
-                status = "Erro inesperado.";
+                status = "Erro ao iniciar download.";
                 isCompleted = true;
               });
-              Future.delayed(const Duration(seconds: 3), () {
+              Future.delayed(const Duration(seconds: 4), () {
                 if (context.mounted) Navigator.of(context).pop();
               });
             }

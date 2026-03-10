@@ -1,6 +1,6 @@
 {
-    "version": "1.0.6",
-    "build_number": 7,
-    "changelog": "- MarkPro Camera v1.0.6!\n- Correção Crítica no Link de Download\n- Melhoria na Estabilidade da Barra de Progresso\n- Sistema de Verificação de Arquivo Corrigido\n- Interface Moderna 100% Funcional",
-    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.6/app-release.apk"
+    "version": "1.0.7",
+    "build_number": 8,
+    "changelog": "- MarkPro Camera v1.0.7!\n- Correção de Crash no Instalador\n- Suporte a FileProvider para Android 12+\n- Melhoria na segurança de caminhos de arquivos\n- Sistema de autolimpeza de cache de atualização",
+    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.7/app-release.apk"
 }
