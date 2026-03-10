@@ -15,6 +15,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:permission_handler/permission_handler.dart'
+    show openAppSettings;
 import '../services/location_service.dart';
 import '../services/image_processor.dart';
 import '../services/update_service.dart';
@@ -62,14 +64,147 @@ class _CameraScreenState extends State<CameraScreen> {
     super.initState();
     _initCamera(_selectedCameraIndex);
     _startTimer();
-    _updateLocation();
     _loadSettings();
     _loadFont();
 
-    // VERIFICAR ATUALIZAÇÃO NO LANÇAMENTO
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      UpdateService.checkUpdate(context);
+    // Pedir permissão + checar GPS logo na 1ª abertura
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _checkAndRequestLocation();
+      // Verificar atualização depois das permissões
+      if (mounted) UpdateService.checkUpdate(context);
     });
+  }
+
+  Future<void> _checkAndRequestLocation() async {
+    // 1. Solicitar permissão de localização (garante o diálogo na 1ª abertura)
+    final hasPermission = await LocationService.requestPermissions();
+
+    if (!hasPermission) {
+      if (!mounted) return;
+      // Permissão negada — mostrar aviso com botão para configurações
+      _showLocationPermissionDialog();
+      return;
+    }
+
+    // 2. Verificar se o GPS está ligado
+    final serviceOn = await LocationService.isLocationServiceEnabled();
+    if (!serviceOn) {
+      if (!mounted) return;
+      _showGpsOffDialog();
+      return;
+    }
+
+    // 3. Tudo OK — buscar localização
+    _updateLocation();
+  }
+
+  void _showGpsOffDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1A1A),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            const Icon(Icons.location_off_rounded, color: Color(0xFFFF5252)),
+            const SizedBox(width: 10),
+            Text(
+              'GPS Desligado',
+              style: GoogleFonts.outfit(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'O GPS está desativado no seu dispositivo.\n\nPara que as fotos tenham localização precisa, ative o GPS nas configurações.',
+          style: GoogleFonts.outfit(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              'Ignorar',
+              style: GoogleFonts.outfit(color: Colors.white38),
+            ),
+          ),
+          ElevatedButton.icon(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await Geolocator.openLocationSettings();
+              // Após voltar das configurações, tentar de novo
+              await Future.delayed(const Duration(seconds: 1));
+              if (mounted) _updateLocation();
+            },
+            icon: const Icon(Icons.settings_rounded, size: 16),
+            label: Text(
+              'Ativar GPS',
+              style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF00E676),
+              foregroundColor: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLocationPermissionDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1A1A),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            const Icon(
+              Icons.location_disabled_rounded,
+              color: Color(0xFFFF5252),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              'Permissão Negada',
+              style: GoogleFonts.outfit(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'Sem permissão de localização, as fotos não terão coordenadas GPS.\n\nVá em Configurações → Permissões → Localização.',
+          style: GoogleFonts.outfit(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              'Ignorar',
+              style: GoogleFonts.outfit(color: Colors.white38),
+            ),
+          ),
+          ElevatedButton.icon(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await openAppSettings();
+            },
+            icon: const Icon(Icons.settings_rounded, size: 16),
+            label: Text(
+              'Configurações',
+              style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF00E676),
+              foregroundColor: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _loadFont() async {

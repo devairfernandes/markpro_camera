@@ -1,6 +1,6 @@
 {
-    "version": "1.0.14",
-    "build_number": 15,
-    "changelog": "- MarkPro Camera v1.0.14!\n- Galeria interna MarkPro: acesse suas fotos com localização garantida\n- Fotos agora armazenadas internamente com coordenadas permanentes\n- Link do Google Maps disponível para QUALQUER foto tirada pelo app, mesmo após reiniciar\n- Badge verde indica fotos com localização disponível",
-    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.14/app-release.apk"
+    "version": "1.0.15",
+    "build_number": 16,
+    "changelog": "- MarkPro Camera v1.0.15!\n- Permissão de localização solicitada na PRIMEIRA abertura do app\n- Novo aviso quando o GPS está desligado com botão para ativar diretamente\n- Novo aviso quando a permissão foi negada com atalho para as configurações\n- Após ativar o GPS, o app busca a localização automaticamente",
+    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.15/app-release.apk"
 }
