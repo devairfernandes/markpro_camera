@@ -215,7 +215,6 @@ class _CameraScreenState extends State<CameraScreen> {
     final XFile? picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked == null || !mounted) return;
 
-    // Tentar ler GPS do EXIF
     double? lat, lon;
     String? addr;
     try {
@@ -227,9 +226,8 @@ class _CameraScreenState extends State<CameraScreen> {
       await exif.close();
 
       if (latStr != null && lonStr != null) {
-        lat = double.tryParse(latStr);
-        lon = double.tryParse(lonStr);
-        // Corrigir sinal pelo Ref (S = negativo, W = negativo)
+        lat = _parseDmsOrDecimal(latStr);
+        lon = _parseDmsOrDecimal(lonStr);
         if (lat != null && latRef == 'S') lat = -lat.abs();
         if (lon != null && lonRef == 'W') lon = -lon.abs();
 
@@ -252,6 +250,37 @@ class _CameraScreenState extends State<CameraScreen> {
         ),
       ),
     );
+  }
+
+  /// Converte string EXIF de coordenadas que pode ser:
+  /// - Decimal simples: "10.720973"
+  /// - DMS racional: "10/1,43/1,2527/100" (graus/min/seg como frações)
+  double? _parseDmsOrDecimal(String raw) {
+    // Tenta decimal direto
+    final direct = double.tryParse(raw);
+    if (direct != null) return direct;
+
+    // Tenta formato DMS racional separado por vírgula ou espaço
+    final parts = raw.split(RegExp(r'[,\s]+'));
+    if (parts.length == 3) {
+      double? deg = _parseRational(parts[0]);
+      double? min = _parseRational(parts[1]);
+      double? sec = _parseRational(parts[2]);
+      if (deg != null && min != null && sec != null) {
+        return deg + (min / 60.0) + (sec / 3600.0);
+      }
+    }
+    return null;
+  }
+
+  double? _parseRational(String part) {
+    final segments = part.split('/');
+    if (segments.length == 2) {
+      final num = double.tryParse(segments[0]);
+      final den = double.tryParse(segments[1]);
+      if (num != null && den != null && den != 0) return num / den;
+    }
+    return double.tryParse(part);
   }
 
   Future<void> _pickLogo() async {
@@ -855,6 +884,53 @@ class _CameraScreenState extends State<CameraScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // DATA E HORA ao vivo
+                  if (_settings['showTime']!) ...[
+                    Row(
+                      children: [
+                        Text(
+                          _currentTimeString.isEmpty
+                              ? '--:--'
+                              : _currentTimeString,
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Container(
+                          width: 2,
+                          height: 22,
+                          color: const Color(0xFF00E676),
+                        ),
+                        const SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _currentDateString.isEmpty
+                                  ? '-- --- ----'
+                                  : _currentDateString,
+                              style: GoogleFonts.outfit(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              _currentDayString.toUpperCase(),
+                              style: GoogleFonts.outfit(
+                                color: Colors.white54,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                  ],
                   if (_settings['showCoords']!)
                     Text(
                       _currentPosition != null

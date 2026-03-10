@@ -1,6 +1,6 @@
 {
-    "version": "1.0.11",
-    "build_number": 12,
-    "changelog": "- MarkPro Camera v1.0.11!\n- Galeria inteligente: abra qualquer foto do app e compartilhe com o link de localização\n- Leitura automática de coordenadas EXIF de fotos anteriores\n- Segure o botão de galeria para escolher qualquer foto\n- Compartilhamento com link do Google Maps para fotos antigas",
-    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.11/app-release.apk"
+    "version": "1.0.12",
+    "build_number": 13,
+    "changelog": "- MarkPro Camera v1.0.12!\n- Correção: Data e hora ao vivo agora aparece na tela antes de tirar a foto\n- Correção: Leitura correta de coordenadas GPS de fotos anteriores (formato DMS)\n- Compartilhamento com link do Google Maps agora funciona para fotos antigas",
+    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.12/app-release.apk"
 }
