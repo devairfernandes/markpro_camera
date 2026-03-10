@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -115,64 +116,77 @@ class UpdateService {
   static void _startUpdate(BuildContext context, String url) {
     double progress = 0;
     String status = "Iniciando download...";
+    bool isCompleted = false;
+    StreamSubscription? subscription;
 
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) {
-          try {
-            OtaUpdate()
-                .execute(url, destinationFilename: 'markpro_update.apk')
-                .listen((OtaEvent event) {
-                  setModalState(() {
-                    switch (event.status) {
-                      case OtaStatus.DOWNLOADING:
-                        status = "Baixando atualização...";
-                        progress = double.tryParse(event.value!) ?? 0;
-                        break;
-                      case OtaStatus.INSTALLING:
-                        status = "Pronto para instalar!";
-                        progress = 100;
-                        // O Android deve abrir o instalador automaticamente aqui
-                        break;
-                      case OtaStatus.ALREADY_RUNNING_ERROR:
-                        status = "Atualização já em curso.";
-                        break;
-                      case OtaStatus.PERMISSION_NOT_GRANTED_ERROR:
-                        status = "Permissão negada.";
-                        break;
-                      case OtaStatus.INTERNAL_ERROR:
-                      case OtaStatus.DOWNLOAD_ERROR:
-                      case OtaStatus.CHECKSUM_ERROR:
-                        status = "Erro no download: ${event.value}";
-                        break;
-                      default:
-                        status = "Status: ${event.status}";
-                    }
-                  });
+          if (subscription == null && !isCompleted) {
+            try {
+              subscription = OtaUpdate()
+                  .execute(url, destinationFilename: 'markpro_update.apk')
+                  .listen(
+                    (OtaEvent event) {
+                      if (!context.mounted) return;
+                      setModalState(() {
+                        switch (event.status) {
+                          case OtaStatus.DOWNLOADING:
+                            status = "Baixando atualização...";
+                            progress = double.tryParse(event.value!) ?? 0;
+                            break;
+                          case OtaStatus.INSTALLING:
+                            status = "Pronto para instalar!";
+                            progress = 100;
+                            isCompleted = true;
+                            break;
+                          case OtaStatus.ALREADY_RUNNING_ERROR:
+                            status = "Atualização já em curso.";
+                            break;
+                          case OtaStatus.PERMISSION_NOT_GRANTED_ERROR:
+                            status = "Permissão de gravação negada.";
+                            break;
+                          case OtaStatus.INTERNAL_ERROR:
+                          case OtaStatus.DOWNLOAD_ERROR:
+                          case OtaStatus.CHECKSUM_ERROR:
+                            status = "Erro no download: ${event.value}";
+                            isCompleted = true;
+                            break;
+                          default:
+                            status = "Status: ${event.status}";
+                        }
+                      });
 
-                  if (event.status == OtaStatus.INSTALLING) {
-                    Future.delayed(const Duration(seconds: 2), () {
-                      if (context.mounted) Navigator.pop(context);
-                    });
-                  }
-
-                  if (event.status == OtaStatus.DOWNLOAD_ERROR ||
-                      event.status == OtaStatus.PERMISSION_NOT_GRANTED_ERROR ||
-                      event.status == OtaStatus.INTERNAL_ERROR) {
-                    Future.delayed(const Duration(seconds: 3), () {
-                      if (context.mounted) Navigator.pop(context);
-                    });
-                  }
-                });
-          } catch (e) {
-            setModalState(() {
-              status = "Erro ao iniciar: $e";
-            });
-            Future.delayed(const Duration(seconds: 3), () {
-              if (context.mounted) Navigator.pop(context);
-            });
+                      if (event.status == OtaStatus.INSTALLING ||
+                          event.status.toString().contains('ERROR')) {
+                        Future.delayed(const Duration(seconds: 3), () {
+                          if (context.mounted) Navigator.of(context).pop();
+                          subscription?.cancel();
+                        });
+                      }
+                    },
+                    onError: (e) {
+                      setModalState(() {
+                        status = "Erro crítico: $e";
+                        isCompleted = true;
+                      });
+                      Future.delayed(const Duration(seconds: 3), () {
+                        if (context.mounted) Navigator.of(context).pop();
+                        subscription?.cancel();
+                      });
+                    },
+                  );
+            } catch (e) {
+              setModalState(() {
+                status = "Erro ao iniciar: $e";
+                isCompleted = true;
+              });
+              Future.delayed(const Duration(seconds: 3), () {
+                if (context.mounted) Navigator.of(context).pop();
+              });
+            }
           }
 
           return AlertDialog(
@@ -198,12 +212,15 @@ class UpdateService {
                   textAlign: TextAlign.center,
                 ),
                 if (progress > 0)
-                  Text(
-                    "${progress.toInt()}%",
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF00E676),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Text(
+                      "${progress.toInt()}%",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF00E676),
+                      ),
                     ),
                   ),
               ],
@@ -211,6 +228,6 @@ class UpdateService {
           );
         },
       ),
-    );
+    ).then((_) => subscription?.cancel());
   }
 }
