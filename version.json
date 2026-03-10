@@ -1,6 +1,6 @@
 {
-    "version": "1.0.8",
-    "build_number": 9,
-    "changelog": "- MarkPro Camera v1.0.8!\n- Novo Recurso: Nome Personalizado do App\n- Personalize a marca do aplicativo para cada cliente ou projeto\n- Nome personalizado aparece no topo e na marca d'água da foto\n- Persistência de nome de projeto nas configurações",
-    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.8/app-release.apk"
+    "version": "1.0.9",
+    "build_number": 10,
+    "changelog": "- MarkPro Camera v1.0.9!\n- Correção de caracteres especiais (Rondônia, etc)\n- Logo da empresa 50% maior nas fotos\n- Nome do projeto como alternativa automática à logo\n- Estabilidade extrema no processamento de imagem\n- Sistema de fontes aprimorado",
+    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.9/app-release.apk"
 }

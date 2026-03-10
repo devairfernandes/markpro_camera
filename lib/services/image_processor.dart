@@ -29,6 +29,7 @@ class ImageProcessParams {
   final bool showCoords;
   final bool showAltitude;
   final String customTitle;
+  final Uint8List? fontData;
 
   ImageProcessParams({
     required this.path,
@@ -50,12 +51,23 @@ class ImageProcessParams {
     required this.showCoords,
     required this.showAltitude,
     required this.customTitle,
+    this.fontData,
   });
 }
 
 class ImageProcessor {
   static const int mapW = 200;
   static const int mapH = 200;
+
+  static String _sanitize(String text) {
+    const withAccent = "ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËèéêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ";
+    const withoutAccent =
+        "AAAAAAaaaaaaOOOOOOooooooEEEEeeeeCcIIIIiiiiUUUUuuuuyNn";
+    for (int i = 0; i < withAccent.length; i++) {
+      text = text.replaceAll(withAccent[i], withoutAccent[i]);
+    }
+    return text;
+  }
 
   static Future<img.Image?> fetchStaticMap(
     double lat,
@@ -173,21 +185,30 @@ class ImageProcessor {
           params.showCoords ||
           params.showAltitude ||
           params.showLogo) {
-        for (int i = 0; i < 480; i++) {
+        for (int i = 0; i < 520; i++) {
           img.fillRect(
             baseImage,
             x1: 0,
-            y1: h - 480 + i,
+            y1: h - 520 + i,
             x2: w,
-            y2: h - 480 + i + 1,
-            color: img.ColorRgba8(0, 0, 0, (i / 480 * 180).toInt()),
+            y2: h - 520 + i + 1,
+            color: img.ColorRgba8(0, 0, 0, (i / 520 * 180).toInt()),
           );
         }
       }
 
+      String title = params.customTitle;
+      String address = params.address;
+
+      // Sanitizar se não houver fonte (evita o Rond  nia)
+      if (params.fontData == null) {
+        title = _sanitize(title);
+        address = _sanitize(address);
+      }
+
       img.drawString(
         baseImage,
-        params.customTitle,
+        title,
         font: img.arial24,
         x: 50,
         y: 50,
@@ -196,13 +217,14 @@ class ImageProcessor {
 
       // LOGO LÓGICA
       if (params.showLogo) {
-        const logoTargetY = 485; // Ajustado para não colidir com o tempo
+        const logoHeight = 110;
+        const logoTargetY = 430 + logoHeight;
+
         if (params.logoPath != null && await File(params.logoPath!).exists()) {
           final logoData = await File(params.logoPath!).readAsBytes();
           final logoImg = img.decodeImage(logoData);
           if (logoImg != null) {
-            // Logo Maior (75px de altura)
-            final scaledLogo = img.copyResize(logoImg, height: 75);
+            final scaledLogo = img.copyResize(logoImg, height: logoHeight);
             img.compositeImage(
               baseImage,
               scaledLogo,
@@ -211,31 +233,13 @@ class ImageProcessor {
             );
           }
         } else {
-          // Placeholder Maior
-          img.fillRect(
-            baseImage,
-            x1: 50,
-            y1: h - 485,
-            x2: 210,
-            y2: h - 410,
-            color: img.ColorRgb8(255, 255, 255),
-          );
-          img.drawRect(
-            baseImage,
-            x1: 50,
-            y1: h - 485,
-            x2: 210,
-            y2: h - 410,
-            color: img.ColorRgb8(0, 230, 118),
-            thickness: 2,
-          );
           img.drawString(
             baseImage,
-            "LOGO",
-            font: img.arial24,
-            x: 80,
-            y: h - 460,
-            color: img.ColorRgb8(0, 0, 0),
+            title,
+            font: img.arial48,
+            x: 50,
+            y: h - logoTargetY + 20,
+            color: img.ColorRgb8(0, 230, 118),
           );
         }
       }
@@ -299,7 +303,7 @@ class ImageProcessor {
       }
 
       if (params.showAddress) {
-        final addrLines = params.address.split('\n');
+        final addrLines = address.split('\n');
         for (int i = 0; i < math.min(addrLines.length, 2); i++) {
           img.drawString(
             baseImage,
@@ -392,6 +396,7 @@ class ImageProcessor {
     required Map<String, bool> settings,
     String? logoPath,
     required String customTitle,
+    Uint8List? fontData,
   }) async {
     final tempDir = await getTemporaryDirectory();
     final appDocDir = await getApplicationDocumentsDirectory();
@@ -418,6 +423,7 @@ class ImageProcessor {
         showCoords: settings['showCoords'] ?? true,
         showAltitude: settings['showAltitude'] ?? true,
         customTitle: customTitle,
+        fontData: fontData,
       ),
     );
 

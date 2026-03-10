@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:geolocator/geolocator.dart';
@@ -13,6 +14,7 @@ import 'package:path/path.dart' show join, basename;
 import 'package:share_plus/share_plus.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 import '../services/location_service.dart';
 import '../services/image_processor.dart';
 import '../services/update_service.dart';
@@ -41,6 +43,7 @@ class _CameraScreenState extends State<CameraScreen> {
   String? _lastPhotoPath;
   String? _customLogoPath;
   String _customTitle = "MARKPRO CAMERA";
+  Uint8List? _fontData;
 
   Map<String, bool> _settings = {
     'showTime': true,
@@ -58,11 +61,40 @@ class _CameraScreenState extends State<CameraScreen> {
     _startTimer();
     _updateLocation();
     _loadSettings();
+    _loadFont();
 
     // VERIFICAR ATUALIZAÇÃO NO LANÇAMENTO
     WidgetsBinding.instance.addPostFrameCallback((_) {
       UpdateService.checkUpdate(context);
     });
+  }
+
+  Future<void> _loadFont() async {
+    try {
+      final appDir = await getApplicationDocumentsDirectory();
+      final fontFile = File(join(appDir.path, 'roboto_font.ttf'));
+
+      if (await fontFile.exists()) {
+        final data = await fontFile.readAsBytes();
+        setState(() => _fontData = data);
+      } else {
+        // Download font if not exists (Roboto supports many accents)
+        final response = await http
+            .get(
+              Uri.parse(
+                "https://github.com/google/fonts/raw/main/apache/roboto/Roboto-Regular.ttf",
+              ),
+            )
+            .timeout(const Duration(seconds: 30));
+
+        if (response.statusCode == 200) {
+          await fontFile.writeAsBytes(response.bodyBytes);
+          setState(() => _fontData = response.bodyBytes);
+        }
+      }
+    } catch (e) {
+      debugPrint("Erro ao carregar fonte: $e");
+    }
   }
 
   Future<void> _loadSettings() async {
@@ -156,6 +188,7 @@ class _CameraScreenState extends State<CameraScreen> {
         settings: settingsCopy,
         logoPath: logoPathCopy,
         customTitle: _customTitle,
+        fontData: _fontData,
       ).then((resultPath) {
         if (mounted) {
           setState(() {
@@ -770,52 +803,42 @@ class _CameraScreenState extends State<CameraScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (_settings['showTime']!)
-                    Row(
-                      children: [
-                        Text(
-                          _currentTimeString,
-                          style: const TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const VerticalDivider(
-                          color: Color(0xFF00E676),
-                          thickness: 2,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              _currentDateString,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.white,
-                              ),
-                            ),
-                            Text(
-                              _currentDayString.toUpperCase(),
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.white70,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                  if (_settings['showCoords']!)
+                    Text(
+                      _currentPosition != null
+                          ? "${_currentPosition!.latitude.toStringAsFixed(6)}, ${_currentPosition!.longitude.toStringAsFixed(6)}"
+                          : "Obtendo GPS...",
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF00E676),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
+                  if (_settings['showAltitude']!)
+                    Text(
+                      _currentPosition != null
+                          ? "ALT: ${_currentPosition!.altitude.toStringAsFixed(1)}m ACC: ${_currentPosition!.accuracy.toStringAsFixed(1)}m"
+                          : "Calculando altitude...",
+                      style: GoogleFonts.outfit(
+                        color: Colors.white54,
+                        fontSize: 12,
+                      ),
+                    ),
+                  const SizedBox(height: 10),
                   if (_settings['showAddress']!)
                     Text(
                       _currentAddress,
-                      style: const TextStyle(fontSize: 11, color: Colors.white),
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
                       maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                 ],
               ),
             ),
-            if (_currentPosition != null && _settings['showMap']!)
+            if (_settings['showMap']! && _currentPosition != null)
               Container(
                 width: 70,
                 height: 70,
