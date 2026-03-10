@@ -59,7 +59,7 @@ class MapCacheService {
 
           final tx = centerTileX + dx;
           final ty = centerTileY + dy;
-          final tileId = "v16_${tx}_${ty}.png";
+          final tileId = "v16_${tx}_$ty.png";
           final cacheFile = File(join(mapCacheDir.path, tileId));
 
           if (!await cacheFile.exists()) {

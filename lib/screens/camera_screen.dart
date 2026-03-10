@@ -36,7 +36,7 @@ class _CameraScreenState extends State<CameraScreen> {
   String _currentDayString = "";
   bool _isProcessingRaw = false;
   bool _isWatermarking = false;
-  int _selectedCameraIndex = 0;
+  final int _selectedCameraIndex = 0;
   FlashMode _flashMode = FlashMode.off;
   String? _lastPhotoPath;
   String? _customLogoPath;
@@ -307,7 +307,7 @@ class _CameraScreenState extends State<CameraScreen> {
                         const SizedBox(width: 8),
                         Switch(
                           value: _settings['showLogo']!,
-                          activeColor: const Color(0xFF00E676),
+                          activeThumbColor: const Color(0xFF00E676),
                           onChanged: (val) {
                             setModalState(() => _settings['showLogo'] = val);
                             setState(() => _settings['showLogo'] = val);
@@ -366,7 +366,7 @@ class _CameraScreenState extends State<CameraScreen> {
       ),
       trailing: Switch(
         value: _settings[key]!,
-        activeColor: const Color(0xFF00E676),
+        activeThumbColor: const Color(0xFF00E676),
         onChanged: (val) {
           setModalState(() => _settings[key] = val);
           setState(() => _settings[key] = val);

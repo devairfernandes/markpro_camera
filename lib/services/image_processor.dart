@@ -84,8 +84,9 @@ class ImageProcessor {
 
     try {
       final mapCacheDir = Directory(join(cacheDirPath, 'map_tiles'));
-      if (!await mapCacheDir.exists())
+      if (!await mapCacheDir.exists()) {
         await mapCacheDir.create(recursive: true);
+      }
 
       List<Future<void>> futures = [];
       for (int dx = -1; dx <= 1; dx++) {
@@ -95,7 +96,7 @@ class ImageProcessor {
           final tX = dx;
           final tY = dy;
           futures.add(() async {
-            final tileId = "v16_${tx}_${ty}.png";
+            final tileId = "v16_${tx}_$ty.png";
             final cacheFile = File(join(mapCacheDir.path, tileId));
             Uint8List? data;
             if (await cacheFile.exists()) {
