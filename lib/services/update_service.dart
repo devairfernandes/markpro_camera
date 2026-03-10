@@ -5,7 +5,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:ota_update/ota_update.dart';
 
 class UpdateService {
-  // CONFIGURACAO REAL PARA DEV AIR FERNANDES
+  // CONFIGURACAO REAL PARA DEVAIR FERNANDES
   static const String _repoUrl =
       "https://raw.githubusercontent.com/devairfernandes/markpro_camera/main/version.json";
 

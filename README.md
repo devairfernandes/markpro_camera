@@ -48,5 +48,5 @@ The **"Editar Modelo"** (Edit Template) menu allows you to toggle the visibility
 
 ## 📄 License & Credits
 
-Developed by **DevAir Fernandes**.  
+Developed by **Devair Fernandes**.  
 *MarkPro Camera - The Professional Standard for Digital Proof.*
