@@ -8,6 +8,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:gal/gal.dart';
 import 'package:flutter/foundation.dart';
+import 'package:native_exif/native_exif.dart';
+import 'package:intl/intl.dart';
 
 class ImageProcessParams {
   final String path;
@@ -428,6 +430,34 @@ class ImageProcessor {
     );
 
     if (finalPath != null) {
+      // ADICIONAR METADADOS EXIF (GPS)
+      try {
+        final exif = await Exif.fromPath(finalPath);
+        final Map<String, dynamic> attributes = {
+          'DateTimeOriginal': DateFormat(
+            'yyyy:MM:dd HH:mm:ss',
+          ).format(DateTime.now()),
+          'ImageDescription': 'MarkPro Camera Verified Photo',
+          'Software': 'MarkPro Camera v1.0.9',
+        };
+
+        if (position != null) {
+          attributes['GPSLatitude'] = position.latitude;
+          attributes['GPSLatitudeRef'] = position.latitude >= 0 ? 'N' : 'S';
+          attributes['GPSLongitude'] = position.longitude;
+          attributes['GPSLongitudeRef'] = position.longitude >= 0 ? 'E' : 'W';
+          attributes['GPSAltitude'] = position.altitude;
+          attributes['GPSAltitudeRef'] = 0; // 0 = Above Sea Level
+        }
+
+        for (final entry in attributes.entries) {
+          await exif.writeAttribute(entry.key, entry.value.toString());
+        }
+        await exif.close();
+      } catch (e) {
+        debugPrint("Erro ao gravar EXIF: $e");
+      }
+
       await Gal.putImage(finalPath, album: "MarkTime");
       try {
         await File(path).delete();

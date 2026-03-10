@@ -41,6 +41,8 @@ class _CameraScreenState extends State<CameraScreen> {
   final int _selectedCameraIndex = 0;
   FlashMode _flashMode = FlashMode.off;
   String? _lastPhotoPath;
+  double? _lastLat, _lastLon;
+  String? _lastAddr;
   String? _customLogoPath;
   String _customTitle = "MARKPRO CAMERA";
   Uint8List? _fontData;
@@ -193,7 +195,12 @@ class _CameraScreenState extends State<CameraScreen> {
         if (mounted) {
           setState(() {
             _isWatermarking = false;
-            if (resultPath != null) _lastPhotoPath = resultPath;
+            if (resultPath != null) {
+              _lastPhotoPath = resultPath;
+              _lastLat = pos?.latitude;
+              _lastLon = pos?.longitude;
+              _lastAddr = addr;
+            }
           });
         }
       });
@@ -887,7 +894,12 @@ class _CameraScreenState extends State<CameraScreen> {
               if (_lastPhotoPath != null) {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => PhotoPreviewScreen(path: _lastPhotoPath!),
+                    builder: (_) => PhotoPreviewScreen(
+                      path: _lastPhotoPath!,
+                      lat: _lastLat,
+                      lon: _lastLon,
+                      address: _lastAddr,
+                    ),
                   ),
                 );
               }
@@ -956,7 +968,17 @@ class _CameraScreenState extends State<CameraScreen> {
 
 class PhotoPreviewScreen extends StatelessWidget {
   final String path;
-  const PhotoPreviewScreen({super.key, required this.path});
+  final double? lat;
+  final double? lon;
+  final String? address;
+
+  const PhotoPreviewScreen({
+    super.key,
+    required this.path,
+    this.lat,
+    this.lon,
+    this.address,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -967,7 +989,16 @@ class PhotoPreviewScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.share, color: Colors.white),
-            onPressed: () => Share.shareXFiles([XFile(path)]),
+            onPressed: () {
+              String shareText =
+                  "Confira esta foto verificada pelo MarkPro Camera!";
+              if (lat != null && lon != null) {
+                shareText += "\n\n📍 Localização: $address";
+                shareText +=
+                    "\n🌍 Ver no Maps: https://www.google.com/maps/search/?api=1&query=$lat,$lon";
+              }
+              Share.shareXFiles([XFile(path)], text: shareText);
+            },
           ),
         ],
       ),
