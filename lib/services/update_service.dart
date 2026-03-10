@@ -141,6 +141,11 @@ class UpdateService {
                             status = "Pronto para instalar!";
                             progress = 100;
                             isCompleted = true;
+                            // Fecha após 2 segundos para o sistema assumir a instalação
+                            Future.delayed(const Duration(seconds: 2), () {
+                              if (context.mounted) Navigator.of(context).pop();
+                              subscription?.cancel();
+                            });
                             break;
                           case OtaStatus.ALREADY_RUNNING_ERROR:
                             status = "Atualização já em curso.";
@@ -151,25 +156,21 @@ class UpdateService {
                           case OtaStatus.INTERNAL_ERROR:
                           case OtaStatus.DOWNLOAD_ERROR:
                           case OtaStatus.CHECKSUM_ERROR:
-                            status = "Erro no download: ${event.value}";
+                            status = "Erro: Link não encontrado ou offline.";
                             isCompleted = true;
+                            Future.delayed(const Duration(seconds: 4), () {
+                              if (context.mounted) Navigator.of(context).pop();
+                              subscription?.cancel();
+                            });
                             break;
                           default:
-                            status = "Status: ${event.status}";
+                            break;
                         }
                       });
-
-                      if (event.status == OtaStatus.INSTALLING ||
-                          event.status.toString().contains('ERROR')) {
-                        Future.delayed(const Duration(seconds: 3), () {
-                          if (context.mounted) Navigator.of(context).pop();
-                          subscription?.cancel();
-                        });
-                      }
                     },
                     onError: (e) {
                       setModalState(() {
-                        status = "Erro crítico: $e";
+                        status = "Erro de conexão.";
                         isCompleted = true;
                       });
                       Future.delayed(const Duration(seconds: 3), () {
@@ -180,7 +181,7 @@ class UpdateService {
                   );
             } catch (e) {
               setModalState(() {
-                status = "Erro ao iniciar: $e";
+                status = "Erro inesperado.";
                 isCompleted = true;
               });
               Future.delayed(const Duration(seconds: 3), () {
@@ -211,7 +212,7 @@ class UpdateService {
                   style: const TextStyle(fontSize: 14),
                   textAlign: TextAlign.center,
                 ),
-                if (progress > 0)
+                if (progress > 0 && progress < 100)
                   Padding(
                     padding: const EdgeInsets.only(top: 10),
                     child: Text(
@@ -228,6 +229,8 @@ class UpdateService {
           );
         },
       ),
-    ).then((_) => subscription?.cancel());
+    ).then((_) {
+      subscription?.cancel();
+    });
   }
 }
