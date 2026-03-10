@@ -383,7 +383,7 @@ class ImageProcessor {
         const devText = 'Dev: Devair Fernandes  69 99221-4709';
         final devSanitized = _sanitize(devText);
 
-        // Criar imagem temporária com o texto horizontal
+        // Criar imagem temporária com o texto horizontal (fundo transparente)
         final tempTextImg = img.Image(width: 700, height: 28);
         img.fill(tempTextImg, color: img.ColorRgba8(0, 0, 0, 0));
         img.drawString(
@@ -392,23 +392,13 @@ class ImageProcessor {
           font: img.arial14,
           x: 4,
           y: 4,
-          color: img.ColorRgba8(255, 255, 255, 180),
+          color: img.ColorRgba8(255, 255, 255, 200),
         );
 
-        // Rotacionar 90° para ficar vertical (de baixo para cima)
+        // Rotacionar 90° para ficar vertical
         final rotated = img.copyRotate(tempTextImg, angle: -90);
 
-        // Fundo semitransparente na lateral direita
-        img.fillRect(
-          baseImage,
-          x1: w - rotated.width - 6,
-          y1: (h ~/ 2) - (rotated.height ~/ 2) - 4,
-          x2: w - 2,
-          y2: (h ~/ 2) + (rotated.height ~/ 2) + 4,
-          color: img.ColorRgba8(0, 0, 0, 120),
-        );
-
-        // Compor o texto rotacionado na borda direita, centralizado verticalmente
+        // Compor diretamente sobre a foto — sem fundo preto
         img.compositeImage(
           baseImage,
           rotated,
