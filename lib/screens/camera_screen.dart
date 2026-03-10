@@ -554,324 +554,471 @@ class _CameraScreenState extends State<CameraScreen> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            return Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFF121212),
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(30),
+            return DraggableScrollableSheet(
+              expand: false,
+              initialChildSize: 0.88,
+              maxChildSize: 0.97,
+              builder: (_, scrollController) => Container(
+                decoration: const BoxDecoration(
+                  color: Color(0xFF0E0E0E),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
                 ),
-                border: Border.all(color: Colors.white10, width: 0.5),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 50,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: Colors.white24,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Configurações",
-                            style: GoogleFonts.outfit(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            "Personalize seu selo de prova",
-                            style: GoogleFonts.outfit(
-                              fontSize: 13,
-                              color: Colors.white54,
-                            ),
-                          ),
-                        ],
-                      ),
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.05),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.close,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 25),
-
-                  // NOME DO APP (PERSONALIZAÇÃO)
-                  InkWell(
-                    onTap: () {
-                      final controller = TextEditingController(
-                        text: _customTitle,
-                      );
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          backgroundColor: const Color(0xFF1A1A1A),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          title: Text(
-                            "Nome do Projeto",
-                            style: GoogleFonts.outfit(color: Colors.white),
-                          ),
-                          content: TextField(
-                            controller: controller,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              hintText: "Ex: Obra São Paulo",
-                              hintStyle: const TextStyle(color: Colors.white24),
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.white10),
-                              ),
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Color(0xFF00E676),
-                                ),
-                              ),
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text(
-                                "Cancelar",
-                                style: TextStyle(color: Colors.white54),
-                              ),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                if (controller.text.isNotEmpty) {
-                                  setModalState(
-                                    () => _customTitle = controller.text
-                                        .toUpperCase(),
-                                  );
-                                  setState(
-                                    () => _customTitle = controller.text
-                                        .toUpperCase(),
-                                  );
-                                  _saveSettings();
-                                  Navigator.pop(context);
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF00E676),
-                              ),
-                              child: const Text(
-                                "SALVAR",
-                                style: TextStyle(color: Colors.black),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(15),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
+                child: Column(
+                  children: [
+                    // Handle
+                    const SizedBox(height: 12),
+                    Container(
+                      width: 44,
+                      height: 4,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF00E676).withOpacity(0.05),
-                        borderRadius: BorderRadius.circular(15),
-                        border: Border.all(
-                          color: const Color(0xFF00E676).withOpacity(0.2),
-                        ),
+                        color: Colors.white12,
+                        borderRadius: BorderRadius.circular(10),
                       ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Header com badge de versão
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 22),
                       child: Row(
                         children: [
-                          const Icon(
-                            Icons.edit_note_rounded,
-                            color: Color(0xFF00E676),
-                          ),
-                          const SizedBox(width: 15),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Nome Personalizado",
+                                  'Configurações',
                                   style: GoogleFonts.outfit(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w800,
                                     color: Colors.white,
-                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 Text(
-                                  _customTitle,
+                                  'Personalize seu carimbo de prova',
                                   style: GoogleFonts.outfit(
-                                    color: const Color(0xFF00E676),
                                     fontSize: 13,
-                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white38,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          const Icon(
-                            Icons.chevron_right_rounded,
-                            color: Colors.white24,
+                          // Badge de versão
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF00E676), Color(0xFF00897B)],
+                              ),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'v1.0.15',
+                              style: GoogleFonts.outfit(
+                                color: Colors.black,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF1E1E1E),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close_rounded,
+                                color: Colors.white54,
+                                size: 18,
+                              ),
+                            ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                  // GRID DE CONFIGURAÇÕES
-                  _buildModernToggle(
-                    "Data e Hora",
-                    _currentTimeString,
-                    Icons.access_time_filled_rounded,
-                    'showTime',
-                    setModalState,
-                  ),
-                  _buildModernToggle(
-                    "Endereço Completo",
-                    "Localização via GPS",
-                    Icons.location_on_rounded,
-                    'showAddress',
-                    setModalState,
-                  ),
-                  _buildModernToggle(
-                    "Mini Mapa 2D",
-                    "Visão aérea local",
-                    Icons.map_rounded,
-                    'showMap',
-                    setModalState,
-                  ),
-                  _buildModernToggle(
-                    "Coordenadas",
-                    "Lat/Long precisas",
-                    Icons.explore_rounded,
-                    'showCoords',
-                    setModalState,
-                  ),
-                  _buildModernToggle(
-                    "Altitude",
-                    "Metros acima do mar",
-                    Icons.landscape_rounded,
-                    'showAltitude',
-                    setModalState,
-                  ),
-
-                  // SEÇÃO DE LOGO
-                  const SizedBox(height: 10),
-                  InkWell(
-                    onTap: () async {
-                      await _pickLogo();
-                      setModalState(() {});
-                    },
-                    borderRadius: BorderRadius.circular(15),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.03),
-                        borderRadius: BorderRadius.circular(15),
-                        border: Border.all(color: Colors.white10),
-                      ),
-                      child: Row(
+                    // Conteúdo rolável
+                    Expanded(
+                      child: ListView(
+                        controller: scrollController,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         children: [
+                          // ── SEÇÃO: IDENTIDADE ──────────────────────────
+                          _sectionLabel('🏷️  Identidade do Projeto'),
+                          const SizedBox(height: 10),
+
+                          // Card: Nome do projeto (editável inline)
                           Container(
-                            width: 45,
-                            height: 45,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF00E676).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(10),
+                              gradient: LinearGradient(
+                                colors: [
+                                  const Color(0xFF00E676).withOpacity(0.08),
+                                  const Color(0xFF00E676).withOpacity(0.02),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(
+                                color: const Color(
+                                  0xFF00E676,
+                                ).withOpacity(0.25),
+                              ),
                             ),
-                            child: _customLogoPath != null
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Image.file(
-                                      File(_customLogoPath!),
-                                      fit: BoxFit.cover,
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 6,
+                              ),
+                              leading: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: const Color(
+                                    0xFF00E676,
+                                  ).withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(
+                                  Icons.badge_rounded,
+                                  color: Color(0xFF00E676),
+                                  size: 22,
+                                ),
+                              ),
+                              title: Text(
+                                'Nome do Projeto',
+                                style: GoogleFonts.outfit(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              subtitle: Text(
+                                _customTitle,
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFF00E676),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              trailing: const Icon(
+                                Icons.edit_rounded,
+                                color: Colors.white24,
+                                size: 18,
+                              ),
+                              onTap: () {
+                                final ctrl = TextEditingController(
+                                  text: _customTitle,
+                                );
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    backgroundColor: const Color(0xFF1A1A1A),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
                                     ),
-                                  )
-                                : const Icon(
-                                    Icons.business_center_rounded,
-                                    color: Color(0xFF00E676),
+                                    title: Text(
+                                      'Nome do Projeto',
+                                      style: GoogleFonts.outfit(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    content: TextField(
+                                      controller: ctrl,
+                                      autofocus: true,
+                                      textCapitalization:
+                                          TextCapitalization.characters,
+                                      style: GoogleFonts.outfit(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                      decoration: InputDecoration(
+                                        hintText: 'Ex: OBRA SP 2025',
+                                        hintStyle: GoogleFonts.outfit(
+                                          color: Colors.white24,
+                                        ),
+                                        filled: true,
+                                        fillColor: const Color(0xFF2A2A2A),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          borderSide: BorderSide.none,
+                                        ),
+                                        suffixIcon: const Icon(
+                                          Icons.title_rounded,
+                                          color: Color(0xFF00E676),
+                                        ),
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(ctx),
+                                        child: Text(
+                                          'Cancelar',
+                                          style: GoogleFonts.outfit(
+                                            color: Colors.white38,
+                                          ),
+                                        ),
+                                      ),
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color(
+                                            0xFF00E676,
+                                          ),
+                                          foregroundColor: Colors.black,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                          ),
+                                        ),
+                                        onPressed: () {
+                                          final v = ctrl.text
+                                              .trim()
+                                              .toUpperCase();
+                                          if (v.isNotEmpty) {
+                                            setModalState(
+                                              () => _customTitle = v,
+                                            );
+                                            setState(() => _customTitle = v);
+                                            _saveSettings();
+                                          }
+                                          Navigator.pop(ctx);
+                                        },
+                                        child: Text(
+                                          'Salvar',
+                                          style: GoogleFonts.outfit(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
+                                );
+                              },
+                            ),
                           ),
-                          const SizedBox(width: 15),
-                          Expanded(
+                          const SizedBox(height: 10),
+
+                          // Card: Logo da empresa
+                          Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1A1A1A),
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(
+                                color: _settings['showLogo']!
+                                    ? Colors.white24
+                                    : Colors.white10,
+                              ),
+                            ),
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  "Logotipo da Empresa",
-                                  style: GoogleFonts.outfit(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
+                                ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 6,
+                                  ),
+                                  leading: Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: const Color(0xFF2A2A2A),
+                                    ),
+                                    child: _customLogoPath != null
+                                        ? ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                            child: Image.file(
+                                              File(_customLogoPath!),
+                                              fit: BoxFit.cover,
+                                            ),
+                                          )
+                                        : const Icon(
+                                            Icons.image_rounded,
+                                            color: Colors.white38,
+                                            size: 22,
+                                          ),
+                                  ),
+                                  title: Text(
+                                    'Logotipo',
+                                    style: GoogleFonts.outfit(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    _customLogoPath != null
+                                        ? '✅ Logo carregada'
+                                        : 'Sem logo — usa nome do projeto',
+                                    style: GoogleFonts.outfit(
+                                      color: _customLogoPath != null
+                                          ? const Color(0xFF00E676)
+                                          : Colors.white38,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  trailing: Switch(
+                                    value: _settings['showLogo']!,
+                                    activeColor: const Color(0xFF00E676),
+                                    onChanged: (v) {
+                                      setModalState(
+                                        () => _settings['showLogo'] = v,
+                                      );
+                                      setState(() => _settings['showLogo'] = v);
+                                      _saveSettings();
+                                    },
                                   ),
                                 ),
-                                Text(
-                                  _customLogoPath != null
-                                      ? "Logo carregada"
-                                      : "Toque para importar",
-                                  style: GoogleFonts.outfit(
-                                    color: Colors.white54,
-                                    fontSize: 12,
+                                // Botões de logo
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: 16,
+                                    right: 16,
+                                    bottom: 12,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: OutlinedButton.icon(
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: const Color(
+                                              0xFF00E676,
+                                            ),
+                                            side: const BorderSide(
+                                              color: Color(0xFF00E676),
+                                              width: 1,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                          ),
+                                          icon: const Icon(
+                                            Icons.upload_rounded,
+                                            size: 16,
+                                          ),
+                                          label: Text(
+                                            'Carregar',
+                                            style: GoogleFonts.outfit(
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                          onPressed: () async {
+                                            await _pickLogo();
+                                            setModalState(() {});
+                                          },
+                                        ),
+                                      ),
+                                      if (_customLogoPath != null) ...[
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: OutlinedButton.icon(
+                                            style: OutlinedButton.styleFrom(
+                                              foregroundColor: Colors.redAccent,
+                                              side: const BorderSide(
+                                                color: Colors.redAccent,
+                                                width: 1,
+                                              ),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                            ),
+                                            icon: const Icon(
+                                              Icons.delete_outline_rounded,
+                                              size: 16,
+                                            ),
+                                            label: Text(
+                                              'Remover',
+                                              style: GoogleFonts.outfit(
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                            onPressed: () {
+                                              setModalState(
+                                                () => _customLogoPath = null,
+                                              );
+                                              setState(
+                                                () => _customLogoPath = null,
+                                              );
+                                              _saveSettings();
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          Switch(
-                            value: _settings['showLogo']!,
-                            activeColor: const Color(0xFF00E676),
-                            onChanged: (val) {
-                              setModalState(() => _settings['showLogo'] = val);
-                              setState(() => _settings['showLogo'] = val);
-                              _saveSettings();
+
+                          const SizedBox(height: 24),
+
+                          // ── SEÇÃO: CARIMBO VISUAL ──────────────────────
+                          _sectionLabel('📸  Informações no Carimbo'),
+                          const SizedBox(height: 12),
+
+                          // Grid compacto de toggles
+                          _buildToggleGrid(setModalState),
+
+                          const SizedBox(height: 24),
+
+                          // ── SEÇÃO: DADOS E BACKUP ──────────────────────
+                          _sectionLabel('⚙️  Configurações Avançadas'),
+                          const SizedBox(height: 10),
+
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildActionBtn(
+                                  'Exportar Config',
+                                  Icons.ios_share_rounded,
+                                  const Color(0xFF448AFF),
+                                  _exportConfig,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _buildActionBtn(
+                                  'Importar Config',
+                                  Icons.download_rounded,
+                                  const Color(0xFFFF9800),
+                                  _importConfig,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Botão de checar GPS
+                          _buildActionBtn(
+                            'Verificar GPS e Permissões',
+                            Icons.gps_fixed_rounded,
+                            const Color(0xFF00E676),
+                            () {
+                              Navigator.pop(context);
+                              _checkAndRequestLocation();
                             },
                           ),
+
+                          const SizedBox(height: 28),
                         ],
                       ),
                     ),
-                  ),
-
-                  const SizedBox(height: 25),
-
-                  // BOTÕES DE CONFIGURAÇÃO VIA CÓDIGO
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildActionBtn(
-                          "Exportar",
-                          Icons.ios_share_rounded,
-                          Colors.blueAccent,
-                          _exportConfig,
-                        ),
-                      ),
-                      const SizedBox(width: 15),
-                      Expanded(
-                        child: _buildActionBtn(
-                          "Importar",
-                          Icons.input_rounded,
-                          Colors.orangeAccent,
-                          _importConfig,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 15),
-                ],
+                  ],
+                ),
               ),
             );
           },
@@ -880,54 +1027,107 @@ class _CameraScreenState extends State<CameraScreen> {
     );
   }
 
-  Widget _buildModernToggle(
-    String title,
-    String subtitle,
-    IconData icon,
-    String key,
-    StateSetter setModalState,
-  ) {
-    bool isEnabled = _settings[key]!;
+  Widget _sectionLabel(String label) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.03),
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(
-            color: isEnabled
-                ? const Color(0xFF00E676).withOpacity(0.3)
-                : Colors.white10,
-          ),
-        ),
-        child: ListTile(
-          leading: Icon(
-            icon,
-            color: isEnabled ? const Color(0xFF00E676) : Colors.white24,
-          ),
-          title: Text(
-            title,
-            style: GoogleFonts.outfit(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-              fontSize: 15,
-            ),
-          ),
-          subtitle: Text(
-            subtitle,
-            style: GoogleFonts.outfit(color: Colors.white38, fontSize: 11),
-          ),
-          trailing: Switch(
-            value: isEnabled,
-            activeColor: const Color(0xFF00E676),
-            onChanged: (val) {
-              setModalState(() => _settings[key] = val);
-              setState(() => _settings[key] = val);
-              _saveSettings();
-            },
-          ),
+      padding: const EdgeInsets.only(left: 4, bottom: 2),
+      child: Text(
+        label,
+        style: GoogleFonts.outfit(
+          color: Colors.white54,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.5,
         ),
       ),
+    );
+  }
+
+  Widget _buildToggleGrid(StateSetter setModalState) {
+    final items = [
+      {
+        'key': 'showTime',
+        'label': 'Data / Hora',
+        'icon': Icons.access_time_filled_rounded,
+      },
+      {
+        'key': 'showAddress',
+        'label': 'Endereço',
+        'icon': Icons.location_on_rounded,
+      },
+      {'key': 'showMap', 'label': 'Mini Mapa', 'icon': Icons.map_rounded},
+      {
+        'key': 'showCoords',
+        'label': 'Coordenadas',
+        'icon': Icons.explore_rounded,
+      },
+      {
+        'key': 'showAltitude',
+        'label': 'Altitude',
+        'icon': Icons.landscape_rounded,
+      },
+    ];
+
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: items.map((item) {
+        final key = item['key'] as String;
+        final icon = item['icon'] as IconData;
+        final label = item['label'] as String;
+        final enabled = _settings[key]!;
+        return GestureDetector(
+          onTap: () {
+            setModalState(() => _settings[key] = !enabled);
+            setState(() => _settings[key] = !enabled);
+            _saveSettings();
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: (MediaQuery.of(context).size.width - 60) / 2,
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+            decoration: BoxDecoration(
+              color: enabled
+                  ? const Color(0xFF00E676).withOpacity(0.12)
+                  : const Color(0xFF1A1A1A),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: enabled
+                    ? const Color(0xFF00E676).withOpacity(0.5)
+                    : Colors.white10,
+                width: 1.5,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  icon,
+                  color: enabled ? const Color(0xFF00E676) : Colors.white24,
+                  size: 20,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: GoogleFonts.outfit(
+                      color: enabled ? Colors.white : Colors.white38,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: enabled ? const Color(0xFF00E676) : Colors.white12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 
