@@ -2,7 +2,7 @@
 
 > **Câmera Profissional com Carimbo de Prova — by Devair Fernandes**
 
-[![Versão](https://img.shields.io/badge/versão-1.0.18-00E676?style=for-the-badge)](https://github.com/devairfernandes/markpro_camera/releases)
+[![Versão](https://img.shields.io/badge/versão-1.0.21-00E676?style=for-the-badge)](https://github.com/devairfernandes/markpro_camera/releases)
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?style=for-the-badge&logo=flutter)](https://flutter.dev)
 [![Android](https://img.shields.io/badge/Android-5.0%2B-3DDC84?style=for-the-badge&logo=android)](https://developer.android.com)
 [![Licença](https://img.shields.io/badge/licença-privado-red?style=for-the-badge)](LICENSE)
