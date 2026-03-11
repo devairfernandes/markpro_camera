@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -596,7 +597,8 @@ class _CameraScreenState extends State<CameraScreen> {
     StateSetter setModalState, {
     required bool targetValue,
   }) {
-    const _devPassword = '@6372@Fernandes';
+    const _devHash =
+        '19bf8adf985ebc476dfca75a3d000256fb907870dc534cb7fdddd108fe17b230';
     final passCtrl = TextEditingController();
     bool _obscure = true;
 
@@ -690,7 +692,10 @@ class _CameraScreenState extends State<CameraScreen> {
                 foregroundColor: Colors.black,
               ),
               onPressed: () {
-                if (passCtrl.text == _devPassword) {
+                final inputHash = sha256
+                    .convert(utf8.encode(passCtrl.text))
+                    .toString();
+                if (inputHash == _devHash) {
                   Navigator.pop(ctx);
                   setModalState(
                     () => _settings['showDevWatermark'] = targetValue,
@@ -800,7 +805,7 @@ class _CameraScreenState extends State<CameraScreen> {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              'v1.0.22',
+                              'v1.0.23',
                               style: GoogleFonts.outfit(
                                 color: Colors.black,
                                 fontSize: 11,
