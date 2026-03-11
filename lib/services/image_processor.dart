@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:math' as math;
-import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' show join;
@@ -378,33 +377,17 @@ class ImageProcessor {
         }
       }
 
-      // ── MARCA DO DESENVOLVEDOR NA LATERAL DIREITA ──
+      // ── MARCA DO DESENVOLVEDOR — texto no rodapé do gradiente ──
       {
         const devText = 'Dev: Devair Fernandes  69 99221-4709';
         final devSanitized = _sanitize(devText);
-
-        // Criar imagem temporária com o texto horizontal (fundo transparente)
-        final tempTextImg = img.Image(width: 700, height: 28);
-        img.fill(tempTextImg, color: img.ColorRgba8(0, 0, 0, 0));
         img.drawString(
-          tempTextImg,
+          baseImage,
           devSanitized,
           font: img.arial14,
-          x: 4,
-          y: 4,
-          color: img.ColorRgba8(255, 255, 255, 200),
-        );
-
-        // Rotacionar 90° para ficar vertical
-        final rotated = img.copyRotate(tempTextImg, angle: -90);
-
-        // Compor diretamente sobre a foto — sem fundo preto
-        img.compositeImage(
-          baseImage,
-          rotated,
-          dstX: w - rotated.width - 4,
-          dstY: (h ~/ 2) - (rotated.height ~/ 2),
-          blend: img.BlendMode.alpha,
+          x: w - 370,
+          y: h - 28,
+          color: img.ColorRgb8(160, 160, 160),
         );
       }
 

@@ -891,7 +891,7 @@ class _CameraScreenState extends State<CameraScreen> {
                                   ),
                                   trailing: Switch(
                                     value: _settings['showLogo']!,
-                                    activeColor: const Color(0xFF00E676),
+                                    activeThumbColor: const Color(0xFF00E676),
                                     onChanged: (v) {
                                       setModalState(
                                         () => _settings['showLogo'] = v,
@@ -1407,6 +1407,23 @@ class _CameraScreenState extends State<CameraScreen> {
                       TileLayer(
                         urlTemplate:
                             'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+                      ),
+                      MarkerLayer(
+                        markers: [
+                          Marker(
+                            point: ll.LatLng(
+                              _currentPosition!.latitude,
+                              _currentPosition!.longitude,
+                            ),
+                            width: 30,
+                            height: 30,
+                            child: const Icon(
+                              Icons.location_on,
+                              color: Colors.red,
+                              size: 30,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
