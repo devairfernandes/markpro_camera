@@ -1,6 +1,6 @@
 {
-    "version": "1.0.19",
-    "build_number": 20,
-    "changelog": "- MarkPro Camera v1.0.19!\n- Assinatura do desenvolvedor sem fundo preto - agora totalmente transparente sobre a foto\n- APK reduzido de 55MB para 20MB (build ARM64 otimizado)",
-    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.19/app-release.apk"
+    "version": "1.0.20",
+    "build_number": 21,
+    "changelog": "- MarkPro Camera v1.0.20!\n- Marcador de localização (gotinha) adicionado ao mini mapa antes de bater a foto",
+    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.20/app-arm64-v8a-release.apk"
 }

@@ -499,7 +499,7 @@ class _CameraScreenState extends State<CameraScreen> {
       final String config = const JsonEncoder.withIndent('  ').convert({
         'settings': _settings,
         'customTitle': _customTitle,
-        'version': '1.0.19',
+        'version': '1.0.20',
         'exportedAt': DateTime.now().toIso8601String(),
       });
       final tempDir = await getTemporaryDirectory();
@@ -638,7 +638,7 @@ class _CameraScreenState extends State<CameraScreen> {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              'v1.0.19',
+                              'v1.0.20',
                               style: GoogleFonts.outfit(
                                 color: Colors.black,
                                 fontSize: 11,
