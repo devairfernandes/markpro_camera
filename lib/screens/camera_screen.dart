@@ -13,6 +13,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' show join, basename;
 import 'package:share_plus/share_plus.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart'
@@ -499,7 +500,7 @@ class _CameraScreenState extends State<CameraScreen> {
       final String config = const JsonEncoder.withIndent('  ').convert({
         'settings': _settings,
         'customTitle': _customTitle,
-        'version': '1.0.20',
+        'version': '1.0.21',
         'exportedAt': DateTime.now().toIso8601String(),
       });
       final tempDir = await getTemporaryDirectory();
@@ -520,51 +521,68 @@ class _CameraScreenState extends State<CameraScreen> {
     }
   }
 
-  void _importConfig() {
-    final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Importar Configuração"),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            hintText: "Cole o código de configuração aqui",
+  Future<void> _importConfig() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        dialogTitle: 'Selecionar arquivo de configuração',
+      );
+
+      if (result == null || result.files.isEmpty) return;
+
+      final file = File(result.files.single.path!);
+      final content = await file.readAsString();
+      final Map<String, dynamic> data = jsonDecode(content);
+
+      if (data.containsKey('settings')) {
+        setState(() {
+          _settings = (data['settings'] as Map<String, dynamic>).map(
+            (k, v) => MapEntry(k, v as bool),
+          );
+          if (data.containsKey('customTitle') &&
+              (data['customTitle'] as String).isNotEmpty) {
+            _customTitle = data['customTitle'] as String;
+          }
+        });
+        await _saveSettings();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Configurações importadas com sucesso!',
+                style: GoogleFonts.outfit(color: Colors.black),
+              ),
+              backgroundColor: const Color(0xFF00E676),
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Arquivo inválido! Não é uma configuração MarkPro.',
+                style: GoogleFonts.outfit(color: Colors.white),
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Erro ao importar: $e',
+              style: GoogleFonts.outfit(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
           ),
-          maxLines: 5,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancelar"),
-          ),
-          TextButton(
-            onPressed: () {
-              try {
-                final Map<String, dynamic> data = jsonDecode(controller.text);
-                if (data.containsKey('settings')) {
-                  setState(() {
-                    _settings = (data['settings'] as Map<String, dynamic>).map(
-                      (k, v) => MapEntry(k, v as bool),
-                    );
-                  });
-                  _saveSettings();
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Configurações importadas!")),
-                  );
-                }
-              } catch (_) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Código inválido!")),
-                );
-              }
-            },
-            child: const Text("Importar"),
-          ),
-        ],
-      ),
-    );
+        );
+      }
+    }
   }
 
   void _showEditModel() {
@@ -638,7 +656,7 @@ class _CameraScreenState extends State<CameraScreen> {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              'v1.0.20',
+                              'v1.0.21',
                               style: GoogleFonts.outfit(
                                 color: Colors.black,
                                 fontSize: 11,

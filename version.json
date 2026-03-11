@@ -1,6 +1,6 @@
 {
-    "version": "1.0.20",
-    "build_number": 21,
-    "changelog": "- MarkPro Camera v1.0.20!\n- Marcador de localização (gotinha) adicionado ao mini mapa antes de bater a foto",
-    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.20/app-arm64-v8a-release.apk"
+    "version": "1.0.21",
+    "build_number": 22,
+    "changelog": "- MarkPro Camera v1.0.21!\n- Importar configurações agora abre o explorador de arquivos .json\n- Versão corrigida no painel de configurações",
+    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.21/app-arm64-v8a-release.apk"
 }
