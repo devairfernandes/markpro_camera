@@ -1,6 +1,6 @@
 {
-    "version": "1.0.21",
-    "build_number": 22,
-    "changelog": "- MarkPro Camera v1.0.21!\n- Importar configurações agora abre o explorador de arquivos .json\n- Versão corrigida no painel de configurações",
-    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.21/app-arm64-v8a-release.apk"
+    "version": "1.0.22",
+    "build_number": 23,
+    "changelog": "- MarkPro Camera v1.0.22!\n- Opção para remover a marca do desenvolvedor das fotos (protegida por senha)\n- Remoção persistente via exportação/importação de configurações",
+    "download_url": "https://github.com/devairfernandes/markpro_camera/releases/download/1.0.22/app-arm64-v8a-release.apk"
 }

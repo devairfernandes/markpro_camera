@@ -58,6 +58,7 @@ class _CameraScreenState extends State<CameraScreen> {
     'showLogo': true,
     'showCoords': true,
     'showAltitude': true,
+    'showDevWatermark': true,
   };
 
   @override
@@ -501,6 +502,7 @@ class _CameraScreenState extends State<CameraScreen> {
         'settings': _settings,
         'customTitle': _customTitle,
         'version': '1.0.21',
+        'showDevWatermark': _settings['showDevWatermark'] ?? true,
         'exportedAt': DateTime.now().toIso8601String(),
       });
       final tempDir = await getTemporaryDirectory();
@@ -537,9 +539,14 @@ class _CameraScreenState extends State<CameraScreen> {
 
       if (data.containsKey('settings')) {
         setState(() {
-          _settings = (data['settings'] as Map<String, dynamic>).map(
+          final loaded = (data['settings'] as Map<String, dynamic>).map(
             (k, v) => MapEntry(k, v as bool),
           );
+          _settings = {..._settings, ...loaded};
+          // Restaurar a flag de marca do dev
+          if (data.containsKey('showDevWatermark')) {
+            _settings['showDevWatermark'] = data['showDevWatermark'] as bool;
+          }
           if (data.containsKey('customTitle') &&
               (data['customTitle'] as String).isNotEmpty) {
             _customTitle = data['customTitle'] as String;
@@ -583,6 +590,143 @@ class _CameraScreenState extends State<CameraScreen> {
         );
       }
     }
+  }
+
+  void _showDevWatermarkDialog(
+    StateSetter setModalState, {
+    required bool targetValue,
+  }) {
+    const _devPassword = '@6372@Fernandes';
+    final passCtrl = TextEditingController();
+    bool _obscure = true;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          backgroundColor: const Color(0xFF1A1A1A),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            children: [
+              const Icon(Icons.lock_rounded, color: Color(0xFFFF5252)),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  targetValue
+                      ? 'Reativar Marca do Dev'
+                      : 'Remover Marca do Dev',
+                  style: GoogleFonts.outfit(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                targetValue
+                    ? 'Digite a senha para reativar a marca do desenvolvedor nas fotos.'
+                    : 'Esta ação remove a assinatura do desenvolvedor das fotos.\n\nDigite a senha de autorização:',
+                style: GoogleFonts.outfit(color: Colors.white70, fontSize: 13),
+              ),
+              const SizedBox(height: 14),
+              TextField(
+                controller: passCtrl,
+                obscureText: _obscure,
+                autofocus: true,
+                style: GoogleFonts.outfit(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: 'Senha de autorização',
+                  hintStyle: GoogleFonts.outfit(color: Colors.white24),
+                  filled: true,
+                  fillColor: const Color(0xFF2A2A2A),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscure
+                          ? Icons.visibility_off_rounded
+                          : Icons.visibility_rounded,
+                      color: Colors.white38,
+                    ),
+                    onPressed: () => setDialogState(() => _obscure = !_obscure),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(
+                'Cancelar',
+                style: GoogleFonts.outfit(color: Colors.white38),
+              ),
+            ),
+            ElevatedButton.icon(
+              icon: Icon(
+                targetValue
+                    ? Icons.check_circle_rounded
+                    : Icons.no_accounts_rounded,
+                size: 16,
+              ),
+              label: Text(
+                targetValue ? 'Reativar' : 'Remover',
+                style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: targetValue
+                    ? const Color(0xFF00E676)
+                    : Colors.redAccent,
+                foregroundColor: Colors.black,
+              ),
+              onPressed: () {
+                if (passCtrl.text == _devPassword) {
+                  Navigator.pop(ctx);
+                  setModalState(
+                    () => _settings['showDevWatermark'] = targetValue,
+                  );
+                  setState(() => _settings['showDevWatermark'] = targetValue);
+                  _saveSettings();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        targetValue
+                            ? '✅ Marca do desenvolvedor reativada!'
+                            : '🔴 Marca do desenvolvedor removida!',
+                        style: GoogleFonts.outfit(color: Colors.black),
+                      ),
+                      backgroundColor: targetValue
+                          ? const Color(0xFF00E676)
+                          : Colors.redAccent,
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Senha incorreta!',
+                        style: GoogleFonts.outfit(color: Colors.white),
+                      ),
+                      backgroundColor: Colors.red.shade900,
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showEditModel() {
@@ -656,7 +800,7 @@ class _CameraScreenState extends State<CameraScreen> {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              'v1.0.21',
+                              'v1.0.22',
                               style: GoogleFonts.outfit(
                                 color: Colors.black,
                                 fontSize: 11,
@@ -1050,6 +1194,78 @@ class _CameraScreenState extends State<CameraScreen> {
                               Navigator.pop(context);
                               _checkAndRequestLocation();
                             },
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // ── SEÇÃO: MARCA DO DESENVOLVEDOR ─────────────
+                          _sectionLabel('🔒  Licença do Desenvolvedor'),
+                          const SizedBox(height: 10),
+
+                          // Card de remoção da marca
+                          Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1A1A1A),
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(
+                                color: (_settings['showDevWatermark'] ?? true)
+                                    ? Colors.white10
+                                    : Colors.redAccent.withOpacity(0.4),
+                              ),
+                            ),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              leading: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: (_settings['showDevWatermark'] ?? true)
+                                      ? Colors.white10
+                                      : Colors.redAccent.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Icon(
+                                  (_settings['showDevWatermark'] ?? true)
+                                      ? Icons.verified_user_rounded
+                                      : Icons.no_accounts_rounded,
+                                  color: (_settings['showDevWatermark'] ?? true)
+                                      ? Colors.white38
+                                      : Colors.redAccent,
+                                  size: 22,
+                                ),
+                              ),
+                              title: Text(
+                                'Marca do Desenvolvedor',
+                                style: GoogleFonts.outfit(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              subtitle: Text(
+                                (_settings['showDevWatermark'] ?? true)
+                                    ? 'Visível nas fotos'
+                                    : '🔴 Removida (requer senha para reativar)',
+                                style: GoogleFonts.outfit(
+                                  color: (_settings['showDevWatermark'] ?? true)
+                                      ? Colors.white38
+                                      : Colors.redAccent,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              trailing: Switch(
+                                value: _settings['showDevWatermark'] ?? true,
+                                activeColor: const Color(0xFF00E676),
+                                inactiveThumbColor: Colors.redAccent,
+                                onChanged: (v) {
+                                  _showDevWatermarkDialog(
+                                    setModalState,
+                                    targetValue: v,
+                                  );
+                                },
+                              ),
+                            ),
                           ),
 
                           const SizedBox(height: 28),

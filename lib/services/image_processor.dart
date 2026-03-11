@@ -30,6 +30,7 @@ class ImageProcessParams {
   final bool showLogo;
   final bool showCoords;
   final bool showAltitude;
+  final bool showDevWatermark;
   final String customTitle;
   final Uint8List? fontData;
 
@@ -52,6 +53,7 @@ class ImageProcessParams {
     required this.showLogo,
     required this.showCoords,
     required this.showAltitude,
+    required this.showDevWatermark,
     required this.customTitle,
     this.fontData,
   });
@@ -378,7 +380,7 @@ class ImageProcessor {
       }
 
       // ── MARCA DO DESENVOLVEDOR — texto no rodapé do gradiente ──
-      {
+      if (params.showDevWatermark) {
         const devText = 'Dev: Devair Fernandes  69 99221-4709';
         final devSanitized = _sanitize(devText);
         img.drawString(
@@ -438,6 +440,7 @@ class ImageProcessor {
         showLogo: settings['showLogo'] ?? true,
         showCoords: settings['showCoords'] ?? true,
         showAltitude: settings['showAltitude'] ?? true,
+        showDevWatermark: settings['showDevWatermark'] ?? true,
         customTitle: customTitle,
         fontData: fontData,
       ),
